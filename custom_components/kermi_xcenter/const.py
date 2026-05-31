@@ -1,6 +1,9 @@
 DOMAIN = "kermi_xcenter"
 
-TOKEN_URL = "https://portal.kermi.com/openid/connect/token"
-API_BASE = "https://portal.kermi.com/xcenterpro/api"
+BASE_URL = "https://portal.kermi.com"
 
-DEFAULT_SCAN_INTERVAL = 300
+TOKEN_URL = f"{BASE_URL}/openid/connect/token"
+
+FAVORITES_URL = (
+    f"{BASE_URL}/xcenterpro/api/Favorite/GetFavorites"
+)

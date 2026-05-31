@@ -1,37 +1,32 @@
-import aiohttp
-from .const import TOKEN_URL, API_BASE
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 
-class KermiApiClient:
-    def __init__(self, session, access_token, refresh_token):
-        self.session = session
-        self.access_token = access_token
-        self.refresh_token = refresh_token
+class KermiApi:
+    def __init__(self, session, auth, base_url):
+        self._session = session
+        self._auth = auth
+        self._base_url = base_url
 
-    async def _headers(self):
-        return {
-            "Authorization": f"Bearer {self.access_token}",
-            "Content-Type": "application/json"
-        }
+    async def get_favorites(self, installation_id: str):
+        await self._auth.refresh_if_needed()
 
-    async def refresh_token_flow(self, client_id):
-        data = {
-            "grant_type": "refresh_token",
-            "refresh_token": self.refresh_token,
-            "client_id": client_id,
-        }
+        url = f"{self._base_url}/xcenterpro/api/Favorite/GetFavorites/{installation_id}"
 
-        async with self.session.post(TOKEN_URL, data=data) as r:
-            data = await r.json()
-            self.access_token = data["access_token"]
-            self.refresh_token = data.get("refresh_token", self.refresh_token)
-
-    async def get_favorites(self, installation_id):
-        url = f"{API_BASE}/Favorite/GetFavorites/{installation_id}"
-
-        async with self.session.post(
+        async with self._session.get(
             url,
-            headers=await self._headers(),
-            json={}
-        ) as r:
-            return await r.json()
+            headers=self._auth.headers(),
+            cookies=self._auth.cookies,
+        ) as resp:
+
+            if resp.status == 401:
+                text = await resp.text()
+                _LOGGER.error("401 from API: %s", text)
+                raise RuntimeError("Unauthorized")
+
+            if "application/json" not in resp.headers.get("Content-Type", ""):
+                text = await resp.text()
+                raise RuntimeError(f"Invalid response: {text}")
+
+            return await resp.json()
