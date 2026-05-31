@@ -1,9 +1,6 @@
 DOMAIN = "kermi_xcenter"
 
-BASE_URL = "https://portal.kermi.com"
+AUTH_URL = "https://portal.kermi.com/openid/connect/authorize"
+TOKEN_URL = "https://portal.kermi.com/openid/connect/token"
 
-TOKEN_URL = f"{BASE_URL}/openid/connect/token"
-
-FAVORITES_URL = (
-    f"{BASE_URL}/xcenterpro/api/Favorite/GetFavorites"
-)
+API_BASE = "https://portal.kermi.com/xcenterpro/api"

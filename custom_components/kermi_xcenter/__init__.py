@@ -1,25 +1,23 @@
-import logging
-from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers import aiohttp_client
+import aiohttp
 
-from .const import DOMAIN, BASE_URL
-from .auth import KermiAuth
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
 from .api import KermiApi
 from .coordinator import KermiCoordinator
+from .token import TokenClient
+from .token_store import TokenStore
+from .const import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
 
+async def async_setup_entry(hass, entry):
+    session = async_get_clientsession(hass)
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    session = aiohttp_client.async_get_clientsession(hass)
+    token_client = TokenClient(session)
+    token_store = TokenStore(token_client)
 
-    auth = KermiAuth(session, BASE_URL)
+    await token_store.set_initial(entry.data["token"])
 
-    # stored from config_flow
-    auth.set_tokens(entry.data["tokens"])
-
-    api = KermiApi(session, auth, BASE_URL)
+    api = KermiApi(session, token_store)
 
     coordinator = KermiCoordinator(
         hass,
@@ -29,11 +27,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await coordinator.async_config_entry_first_refresh()
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    return True
-
-
-async def async_unload_entry(hass, entry):
-    hass.data[DOMAIN].pop(entry.entry_id)
     return True

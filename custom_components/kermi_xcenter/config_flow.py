@@ -1,30 +1,34 @@
 import voluptuous as vol
 from homeassistant import config_entries
 
-from .const import DOMAIN
+from .oauth import KermiOAuth
 
 
-class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class KermiConfigFlow(config_entries.ConfigFlow, domain="kermi_xcenter"):
+    VERSION = 1
 
     async def async_step_user(self, user_input=None):
-        if user_input is not None:
-            return self.async_create_entry(
-                title="Kermi X-Center",
-                data={
-                    "installation_id": user_input["installation_id"],
-                    "tokens": {
-                        "access_token": user_input["access_token"],
-                        "refresh_token": user_input.get("refresh_token"),
-                        "expires_in": 3600,
-                    },
-                },
-            )
+        oauth = KermiOAuth()
 
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema({
-                vol.Required("installation_id"): str,
-                vol.Required("access_token"): str,
-                vol.Optional("refresh_token"): str,
-            }),
+        verifier, challenge = oauth.generate_pkce()
+
+        self.context["verifier"] = verifier
+        self.context["state"] = "kermi_state"
+
+        redirect_uri = self.hass.config.api.base_url + "/auth/external/callback"
+
+        url = oauth.build_auth_url(
+            redirect_uri=redirect_uri,
+            state="kermi_state",
+            challenge=challenge,
+        )
+
+        self.context["redirect_uri"] = redirect_uri
+
+        return self.async_external_step(step_id="auth", url=url)
+
+    async def async_step_auth(self, user_input):
+        return self.async_create_entry(
+            title="Kermi X-Center",
+            data=user_input,
         )

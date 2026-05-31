@@ -1,32 +1,24 @@
-import logging
-
-_LOGGER = logging.getLogger(__name__)
+import aiohttp
+from .const import API_BASE
 
 
 class KermiApi:
-    def __init__(self, session, auth, base_url):
-        self._session = session
-        self._auth = auth
-        self._base_url = base_url
+    def __init__(self, session, token_store):
+        self.session = session
+        self.token_store = token_store
 
-    async def get_favorites(self, installation_id: str):
-        await self._auth.refresh_if_needed()
+    async def _headers(self):
+        return {
+            "Authorization": f"Bearer {await self.token_store.get_access_token()}",
+            "Accept": "application/json",
+        }
 
-        url = f"{self._base_url}/xcenterpro/api/Favorite/GetFavorites/{installation_id}"
+    async def get_favorites(self, installation_id):
+        url = f"{API_BASE}/Favorite/GetFavorites/{installation_id}"
 
-        async with self._session.get(
-            url,
-            headers=self._auth.headers(),
-            cookies=self._auth.cookies,
-        ) as resp:
+        async with self.session.post(url, headers=await self._headers()) as r:
+            if r.status == 401:
+                await self.token_store.refresh()
+                return await self.get_favorites(installation_id)
 
-            if resp.status == 401:
-                text = await resp.text()
-                _LOGGER.error("401 from API: %s", text)
-                raise RuntimeError("Unauthorized")
-
-            if "application/json" not in resp.headers.get("Content-Type", ""):
-                text = await resp.text()
-                raise RuntimeError(f"Invalid response: {text}")
-
-            return await resp.json()
+            return await r.json()
