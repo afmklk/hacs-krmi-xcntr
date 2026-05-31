@@ -1,9 +1,12 @@
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
 from .api import KermiApiClient
 from .coordinator import KermiCoordinator
 
 
 async def async_setup_entry(hass, entry):
-    session = hass.helpers.aiohttp_client.async_get_clientsession()
+
+    session = async_get_clientsession(hass)
 
     client = KermiApiClient(
         session,
@@ -20,6 +23,5 @@ async def async_setup_entry(hass, entry):
     await coordinator.async_config_entry_first_refresh()
 
     entry.runtime_data = coordinator
-    hass.data.setdefault("kermi_xcenter", {})[entry.entry_id] = coordinator
 
     return True
