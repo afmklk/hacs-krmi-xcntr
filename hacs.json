@@ -1,0 +1,6 @@
+{
+  "name": "Kermi X-Center",
+  "content_in_root": false,
+  "domains": ["sensor"],
+  "homeassistant": "2024.1.0"
+}

@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kermi X-Center",
+        "description": "Enter your API credentials",
+        "data": {
+          "installation_id": "Installation ID",
+          "access_token": "Access Token",
+          "refresh_token": "Refresh Token",
+          "client_id": "Client ID"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "domain": "kermi_xcenter",
+  "name": "Kermi X-Center",
+  "version": "1.0.0",
+  "documentation": "https://github.com/YOUR_REPO/hacs-kermi-xcenter",
+  "issue_tracker": "https://github.com/YOUR_REPO/hacs-kermi-xcenter/issues",
+  "dependencies": [],
+  "codeowners": [],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "requirements": ["aiohttp"]
+}
