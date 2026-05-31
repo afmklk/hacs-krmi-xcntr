@@ -3,8 +3,9 @@ from homeassistant import config_entries
 
 from .oauth import KermiOAuth
 
+DOMAIN = "kermi_xcenter"
 
-class KermiConfigFlow(config_entries.ConfigFlow, domain="kermi_xcenter"):
+class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     async def async_step_user(self, user_input=None):
