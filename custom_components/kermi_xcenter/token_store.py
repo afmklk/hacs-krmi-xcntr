@@ -23,13 +23,15 @@ class TokenStore:
         )
 
     async def get_access_token(self):
+        if not self.access_token:
+        	raise ValueError("No access token available")
+	
         if (
-            self.access_token is None
-            or time.time() >= self.expires_at
+			self.refresh_token
+			and time.time() >= self.expires_at
         ):
-            _LOGGER.debug("Access token expired, refreshing")
-            await self.refresh()
-
+        	await self.refresh()
+	
         return self.access_token
 
     async def refresh(self):
