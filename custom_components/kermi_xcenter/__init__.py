@@ -10,9 +10,9 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry):
-	session = async_get_clientsession(hass)
-	token_client = TokenClient(session)
-	token_store = TokenStore(token_client)
+    session = async_get_clientsession(hass)
+    token_client = TokenClient(session)
+    token_store = TokenStore(token_client)
 	
 	_LOGGER.warning(
     "Config entry loaded. installation=%s access=%s refresh=%s",
