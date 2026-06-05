@@ -10,17 +10,24 @@ class KermiApi:
         self.token_store = token_store
 
     async def _headers(self):
+        token = await self.token_store.get_access_token()
+    
+        _LOGGER.warning(
+            "Using access token prefix: %s",
+            token[:80],
+        )
+    
         return {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json;charset=UTF-8",
             "Origin": "https://portal.kermi.com",
             "Referer": (
-                "https://portal.kermi.com/XCenterUI/"
-                f"RemoteControlNew/de/DE/{self.installation_id}/homescreen"
+                f"https://portal.kermi.com/XCenterUI/"
+                f"RemoteControlNew/de/DE/"
+                f"{self.installation_id}/homescreen"
             ),
         }
-
     
     async def _post(self, url, payload=None):
         headers = await self._headers()
