@@ -23,6 +23,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
         #possible_keys = {str(key).lower() for key in possible_values.keys()}
         #if possible_keys and possible_keys <= {"true", "false", "an", "aus", "on", "off"}:
             #continue
+            
+        wellknown = config.get("WellKnownName")
+        
+        possible_keys = {str(key).lower() for key in possible_values.keys()}
+        is_boolean_enum = possible_keys and possible_keys <= {"true", "false"}
+        
+        if is_boolean_enum and wellknown != "System_IsPresent":
+            continue
 
         if not config.get("AllowedInAction"):
             continue
