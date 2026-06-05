@@ -30,6 +30,11 @@ async def async_setup_entry(hass, entry):
     )
 
     _LOGGER.warning(
+        "Access token starts with: %s",
+        entry.data["access_token"][:50],
+    )
+
+    _LOGGER.warning(
         "TokenStore initialized. access=%s refresh=%s",
         bool(token_store.access_token),
         bool(token_store.refresh_token),

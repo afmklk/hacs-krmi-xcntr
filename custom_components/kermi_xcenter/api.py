@@ -21,14 +21,9 @@ class KermiApi:
             "Referer": "https://portal.kermi.com/",
         }
 
+    
     async def _post(self, url, payload=None):
         headers = await self._headers()
-    
-        _LOGGER.warning(
-            "Kermi API POST %s payload=%s",
-            url,
-            payload,
-        )
     
         async with self.session.post(
             url,
@@ -39,14 +34,20 @@ class KermiApi:
             text = await r.text()
     
             _LOGGER.warning(
-                "Kermi API response %s -> %s",
+                "Kermi API POST %s -> %s",
+                url,
                 r.status,
-                text[:1000],
+            )
+    
+            _LOGGER.warning(
+                "Kermi API response body: %s",
+                text,
             )
     
             if r.status == 401:
                 _LOGGER.error(
-                    "Access token rejected by Kermi API"
+                    "Access token rejected by Kermi API. Body=%s",
+                    text,
                 )
     
             r.raise_for_status()
