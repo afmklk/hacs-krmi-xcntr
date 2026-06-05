@@ -32,20 +32,21 @@ class TokenStore:
 
     async def refresh(self):
         async with self._refresh_lock:
+            now = time.time()
+    
+            # Another coroutine may already have refreshed while we waited.
+            if not force and self.access_token and now < self.expires_at - 300:
+                return
+    
             if not self.refresh_token:
                 raise ValueError("No refresh token available")
-
-            old_refresh_token = self.refresh_token
-
-            data = await self.client.refresh(old_refresh_token)
-
-            if "access_token" not in data:
-                raise ValueError(f"Token refresh failed: {data}")
-
+    
+            data = await self.client.refresh(self.refresh_token)
+    
             self.access_token = data["access_token"]
-            self.refresh_token = data.get("refresh_token", old_refresh_token)
+            self.refresh_token = data.get("refresh_token", self.refresh_token)
             self.expires_at = time.time() + data.get("expires_in", 3600)
-
+    
             if self.update_callback:
                 self.update_callback(
                     {
