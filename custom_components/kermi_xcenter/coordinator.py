@@ -91,18 +91,18 @@ class KermiCoordinator(DataUpdateCoordinator):
 
     async def _discover_favorites(self):
         data = await self.api.get_favorites(self.installation_id)
-
+    
         count_before = len(self._datapoints)
-
+    
         for item in data.get("ResponseData", []) or []:
             if "FavoriteDatapoint" not in item.get("$type", ""):
                 continue
-
+    
             dp = _normalize_favorite_datapoint(item)
-
-            if dp["config_id"] and dp["device_id"] != ZERO_DEVICE_ID:
+    
+            if dp["config_id"]:
                 self._datapoints[dp["config_id"]] = dp
-
+    
         _LOGGER.warning(
             "Kermi favorite datapoint discovery completed: added=%s total=%s",
             len(self._datapoints) - count_before,
