@@ -163,7 +163,7 @@ class KermiCoordinator(DataUpdateCoordinator):
                     menu_ids.add(menu_id)
 
                 device_id = item.get("DeviceId")
-                if device_id:
+                if device_id and device_id != "00000000-0000-0000-0000-000000000000":
                     self._device_ids.add(device_id)
 
             else:
@@ -174,7 +174,9 @@ class KermiCoordinator(DataUpdateCoordinator):
         for menu_id in menu_ids:
             await self._discover_menu(menu_id)
 
-        await self._discover_device_configs()
+        # Disabled for now: Kermi cloud returns 400 for GetConfigsByDeviceId here.
+        # Menu/GetChildEntries already provides datapoint configs.
+        # await self._discover_device_configs()
 
         _LOGGER.info(
             "Kermi discovery completed: %s datapoints, %s devices, %s menus",
