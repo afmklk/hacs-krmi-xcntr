@@ -95,6 +95,14 @@ class KermiCoordinator(DataUpdateCoordinator):
         count_before = len(self._datapoints)
     
         for item in data.get("ResponseData", []) or []:
+            _LOGGER.warning(
+                "Kermi favorite found: %s type=%s config=%s device=%s",
+                item.get("DisplayName"),
+                item.get("$type"),
+                item.get("DatapointConfigId"),
+                item.get("DeviceId"),
+            )
+    
             if "FavoriteDatapoint" not in item.get("$type", ""):
                 continue
     
@@ -107,14 +115,6 @@ class KermiCoordinator(DataUpdateCoordinator):
             "Kermi favorite datapoint discovery completed: added=%s total=%s",
             len(self._datapoints) - count_before,
             len(self._datapoints),
-        )
-        
-        _LOGGER.warning(
-            "Kermi favorite found: %s type=%s config=%s device=%s",
-            item.get("DisplayName"),
-            item.get("$type"),
-            item.get("DatapointConfigId"),
-            item.get("DeviceId"),
         )
 
     async def _discover_wellknown_heatpump_datapoints(self):

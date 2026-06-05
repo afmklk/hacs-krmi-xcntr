@@ -23,7 +23,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         if config.get("UserLevelWrite", 999) > 10:
             continue
 
-        if not isinstance(value, bool):
+        if not _is_boolean_datapoint(config, value):
             continue
 
         entities.append(KermiSwitch(coordinator, dp))
@@ -50,7 +50,13 @@ class KermiSwitch(CoordinatorEntity, SwitchEntity):
             self.datapoint["config_id"],
             {},
         )
-        return bool((dp.get("value") or {}).get("Value"))
+        config = dp.get("config", {})
+        value = (dp.get("value") or {}).get("Value")
+
+        if value is None:
+            value = config.get("DefaultValue")
+
+        return bool(value)
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.api.write_value(
@@ -67,3 +73,16 @@ class KermiSwitch(CoordinatorEntity, SwitchEntity):
             False,
         )
         await self.coordinator.async_request_refresh()
+
+
+def _is_boolean_datapoint(config, value):
+    if isinstance(value, bool):
+        return True
+
+    if isinstance(config.get("DefaultValue"), bool):
+        return True
+
+    possible_values = config.get("PossibleValues") or {}
+    possible_keys = {str(key).lower() for key in possible_values.keys()}
+
+    return possible_keys and possible_keys <= {"true", "false"}
