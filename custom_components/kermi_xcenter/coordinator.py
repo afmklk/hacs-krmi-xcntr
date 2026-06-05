@@ -65,7 +65,7 @@ class KermiCoordinator(DataUpdateCoordinator):
         self._devices = {}
 
     async def _discover_devices(self):
-        data = await self.api.get_all_devices(self.installation_id)
+        data = await self.api.get_heatpump_devices(self.installation_id)
 
         for device in data.get("ResponseData", []) or []:
             device_id = device.get("DeviceId")
