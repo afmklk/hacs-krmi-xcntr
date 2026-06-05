@@ -27,7 +27,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
             continue
 
         # Exposed as select.py
-        if cfg.get("PossibleValues"):
+        is_writable = (
+            cfg.get("AllowedInAction")
+            and cfg.get("UserLevelWrite", 999) <= 10
+        )
+        
+        if cfg.get("PossibleValues") and is_writable:
             continue
 
         # Exposed as switch.py
