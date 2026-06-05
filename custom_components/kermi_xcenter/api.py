@@ -128,11 +128,10 @@ class KermiApi:
             },
         )
 
-    async def get_configs_by_filter(self, installation_id, device_id):
+    async def get_configs_by_filter(self, installation_id):
         return await self._post(
             f"{API_BASE}/Datapoint/GetConfigsByFilter/{installation_id}",
             {
-                "DeviceId": device_id,
                 "WithDetails": True,
             },
         )
