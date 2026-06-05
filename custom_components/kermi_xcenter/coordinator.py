@@ -15,6 +15,16 @@ def _value_type_from_config(config):
     )
 
 
+def _normalize_config(config, device_id):
+    return {
+        "config_id": config.get("DatapointConfigId"),
+        "device_id": device_id,
+        "type": _value_type_from_config(config),
+        "config": config,
+        "value": {},
+    }
+
+
 def _normalize_datapoint(raw, fallback_device_id=None):
     config = raw.get("Config") or raw.get("DatapointConfig") or {}
     value = raw.get("DatapointValue") or {}
@@ -82,33 +92,59 @@ class KermiCoordinator(DataUpdateCoordinator):
         if device_id and device_id != ZERO_DEVICE_ID:
             self._device_ids.add(device_id)
 
-        menu_entries = response.get("MenuEntries", []) or []
-        bundles = response.get("Bundles", []) or []
-
-        _LOGGER.info(
-            "Kermi menu %s: %s children, %s bundles",
-            menu_id,
-            len(menu_entries),
-            len(bundles),
-        )
-
-        for bundle in bundles:
+        for bundle in response.get("Bundles", []) or []:
             for raw_dp in bundle.get("Datapoints", []) or []:
-                dp = _normalize_datapoint(
-                    raw_dp,
-                    fallback_device_id=device_id,
-                )
-
+                dp = _normalize_datapoint(raw_dp, fallback_device_id=device_id)
                 if dp["config_id"]:
                     self._datapoints[dp["config_id"]] = dp
-
                 if dp["device_id"] and dp["device_id"] != ZERO_DEVICE_ID:
                     self._device_ids.add(dp["device_id"])
 
-        for child in menu_entries:
+        for child in response.get("MenuEntries", []) or []:
             child_id = child.get("MenuEntryId")
             if child_id:
                 await self._discover_menu(child_id)
+
+    async def _discover_configs_by_filter(self):
+        for device_id in list(self._device_ids):
+            if not device_id or device_id == ZERO_DEVICE_ID:
+                continue
+
+            try:
+                data = await self.api.get_configs_by_filter(
+                    self.installation_id,
+                    device_id,
+                )
+            except Exception:
+                _LOGGER.exception(
+                    "Failed to discover datapoint configs by filter for device %s",
+                    device_id,
+                )
+                continue
+
+            configs = data.get("ResponseData", []) or []
+
+            _LOGGER.warning(
+                "Kermi config discovery for device %s: %s configs",
+                device_id,
+                len(configs),
+            )
+
+            for config in configs:
+                config_id = config.get("DatapointConfigId")
+                if not config_id:
+                    continue
+
+                existing = self._datapoints.get(config_id)
+                if existing:
+                    existing["config"] = config
+                    existing["device_id"] = existing.get("device_id") or device_id
+                    existing["type"] = existing.get("type") or _value_type_from_config(config)
+                else:
+                    self._datapoints[config_id] = _normalize_config(
+                        config,
+                        device_id,
+                    )
 
     async def _discover(self):
         favorites = await self.api.get_favorites(self.installation_id)
@@ -148,6 +184,8 @@ class KermiCoordinator(DataUpdateCoordinator):
 
         for menu_id in menu_ids:
             await self._discover_menu(menu_id)
+
+        await self._discover_configs_by_filter()
 
         _LOGGER.warning(
             "Kermi discovery completed: %s datapoints, %s devices, %s menus",
