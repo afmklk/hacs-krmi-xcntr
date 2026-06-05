@@ -16,17 +16,25 @@ async def async_setup_entry(hass, entry):
     token_client = TokenClient(session)
 
     def update_tokens(token_data):
+        new_data = {
+            **entry.data,
+            "access_token": token_data["access_token"],
+            "refresh_token": token_data.get(
+                "refresh_token",
+                entry.data.get("refresh_token"),
+            ),
+            "expires_in": token_data.get(
+                "expires_in",
+                entry.data.get("expires_in", 3600),
+            ),
+        }
+
         hass.config_entries.async_update_entry(
             entry,
-            data={
-                **entry.data,
-                "access_token": token_data["access_token"],
-                "refresh_token": token_data.get(
-                    "refresh_token",
-                    entry.data.get("refresh_token"),
-                ),
-            },
+            data=new_data,
         )
+
+        _LOGGER.debug("Kermi tokens persisted to config entry")
 
     token_store = TokenStore(
         token_client,
