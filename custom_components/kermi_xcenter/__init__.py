@@ -40,7 +40,11 @@ async def async_setup_entry(hass, entry):
         bool(token_store.refresh_token),
     )
 
-    api = KermiApi(session, token_store)
+    api = KermiApi(
+        session,
+        token_store,
+        entry.data["installation_id"],
+    )
     coordinator = KermiCoordinator(hass, api, entry.data["installation_id"])
     await coordinator.async_config_entry_first_refresh()
 

@@ -5,9 +5,15 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class KermiApi:
-    def __init__(self, session, token_store):
+    def __init__(
+        self,
+        session,
+        token_store,
+        installation_id,
+    ):
         self.session = session
         self.token_store = token_store
+        self.installation_id = installation_id
 
     async def _headers(self):
         token = await self.token_store.get_access_token()
