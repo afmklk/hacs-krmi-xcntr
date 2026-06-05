@@ -33,6 +33,8 @@ def extract_wellknown_ids(js_text):
                 "ManualSaison",
                 "SummerMode",
                 "EnergyMode",
+                "MK3Name",
+                "Heatpump_",
             )
         )
     }
