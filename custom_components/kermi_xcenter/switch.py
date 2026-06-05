@@ -13,6 +13,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
     for dp in datapoints.values():
         config = dp.get("config", {})
         value = (dp.get("value") or {}).get("Value")
+        
+        possible_values = config.get("PossibleValues") or {}
+        possible_keys = {str(key).lower() for key in possible_values.keys()}
+        
+        if possible_keys and possible_keys <= {"true", "false"}:
+            continue
 
         if config.get("Hidden") or config.get("Ignore"):
             continue
