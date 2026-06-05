@@ -18,11 +18,6 @@ class KermiApi:
     async def _headers(self):
         token = await self.token_store.get_access_token()
     
-        _LOGGER.warning(
-            "Using access token prefix: %s",
-            token[:80],
-        )
-    
         return {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json, text/plain, */*",
