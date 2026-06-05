@@ -55,7 +55,7 @@ class KermiApi:
                 )
 
                 if r.status == 401 and attempt == 0:
-                    await self.token_store.refresh()
+                    await self.token_store.refresh(force=True)
                     continue
 
                 r.raise_for_status()
