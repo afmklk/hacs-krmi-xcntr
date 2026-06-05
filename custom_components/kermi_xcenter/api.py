@@ -50,10 +50,36 @@ class KermiApi:
                     return text
 
     async def get_favorites(self, installation_id):
-        return await self._post(
+        return await self._get(
             f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
             {"WithDetails": True, "OnlyHomeScreen": True},
         )
+
+    async def _get(self, url):
+        for attempt in range(2):
+            async with self.session.get(
+                url,
+                headers=await self._headers(),
+            ) as r:
+                text = await r.text()
+    
+                _LOGGER.debug(
+                    "Kermi API GET %s -> %s body=%s",
+                    url,
+                    r.status,
+                    text[:1000],
+                )
+    
+                if r.status == 401 and attempt == 0:
+                    await self.token_store.refresh()
+                    continue
+    
+                r.raise_for_status()
+    
+                try:
+                    return await r.json()
+                except Exception:
+                    return text
 
     async def get_all_devices(self, installation_id):
         return await self._post(
