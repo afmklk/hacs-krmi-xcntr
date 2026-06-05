@@ -30,7 +30,7 @@ class TokenStore:
 
         return self.access_token
 
-    async def refresh(self):
+    async def refresh(self, force=False):
         async with self._refresh_lock:
             now = time.time()
     
