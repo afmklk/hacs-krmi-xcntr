@@ -1,23 +1,18 @@
-from .const import API_BASE
 import logging
+
+from .const import API_BASE
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class KermiApi:
-    def __init__(
-        self,
-        session,
-        token_store,
-        installation_id,
-    ):
+    def __init__(self, session, token_store, installation_id):
         self.session = session
         self.token_store = token_store
         self.installation_id = installation_id
 
     async def _headers(self):
         token = await self.token_store.get_access_token()
-
         return {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json, text/plain, */*",
@@ -44,9 +39,6 @@ class KermiApi:
                 )
 
                 if r.status == 401 and attempt == 0:
-                    _LOGGER.warning(
-                        "Kermi token rejected; refreshing and retrying once"
-                    )
                     await self.token_store.refresh()
                     continue
 
@@ -60,39 +52,27 @@ class KermiApi:
     async def get_favorites(self, installation_id):
         return await self._post(
             f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
+            {"WithDetails": True, "OnlyHomeScreen": True},
+        )
+
+    async def get_all_devices(self, installation_id):
+        return await self._post(
+            f"{API_BASE}/Device/GetAllDevices/{installation_id}",
+            {},
+        )
+
+    async def get_configs(self, installation_id, device_type, device_version, config_ids):
+        return await self._post(
+            f"{API_BASE}/Datapoint/GetConfigs/{installation_id}",
             {
-                "WithDetails": True,
-                "OnlyHomeScreen": True,
+                "DeviceType": device_type,
+                "DeviceVersion": device_version,
+                "DatapointConfigIds": config_ids,
+                "IgnoreNotExisting": True,
             },
         )
 
-    async def get_child_entries(
-        self,
-        installation_id,
-        payload,
-    ):
-        return await self._post(
-            f"{API_BASE}/Menu/GetChildEntries/{installation_id}",
-            payload,
-        )
-
-    async def get_configs_by_device(
-        self,
-        installation_id,
-        device_id,
-    ):
-        return await self._post(
-            f"{API_BASE}/Datapoint/GetConfigsByDeviceId/{installation_id}",
-            {
-                "DeviceId": device_id,
-            },
-        )
-
-    async def read_values(
-        self,
-        installation_id,
-        datapoints,
-    ):
+    async def read_values(self, installation_id, datapoints):
         return await self._post(
             f"{API_BASE}/Datapoint/ReadValues/{installation_id}",
             {
@@ -107,12 +87,7 @@ class KermiApi:
             },
         )
 
-    async def write_value(
-        self,
-        installation_id,
-        datapoint,
-        value,
-    ):
+    async def write_value(self, installation_id, datapoint, value):
         return await self._post(
             f"{API_BASE}/Datapoint/WriteValues/{installation_id}",
             {
@@ -125,13 +100,5 @@ class KermiApi:
                         "Value": value,
                     }
                 ]
-            },
-        )
-
-    async def get_configs_by_filter(self, installation_id):
-        return await self._post(
-            f"{API_BASE}/Datapoint/GetConfigsByFilter/{installation_id}",
-            {
-                "WithDetails": True,
             },
         )
