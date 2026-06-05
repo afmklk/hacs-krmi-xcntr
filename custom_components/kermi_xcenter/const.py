@@ -5,6 +5,7 @@ DOMAIN = "kermi_xcenter"
 PLATFORMS = [
     Platform.SENSOR,
     Platform.NUMBER,
+    Platform.SELECT,
 ]
 
 AUTH_URL = "https://portal.kermi.com/openid/connect/authorize"
