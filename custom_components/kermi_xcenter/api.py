@@ -27,12 +27,6 @@ class KermiApi:
             "Authorization": f"Bearer {token}",
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json;charset=UTF-8",
-            "Origin": "https://portal.kermi.com",
-            "Referer": (
-                f"https://portal.kermi.com/XCenterUI/"
-                f"RemoteControlNew/de/DE/"
-                f"{self.installation_id}/homescreen"
-            ),
         }
     
     async def _post(self, url, payload=None):
