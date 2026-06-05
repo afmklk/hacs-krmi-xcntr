@@ -63,3 +63,42 @@ class KermiApi:
                 "OnlyHomeScreen": True,
             },
         )
+
+    async def get_child_entries(self, installation_id, menu_entry_id):
+        return await self._post(
+            f"{API_BASE}/Menu/GetChildEntries/{installation_id}",
+            {
+                "MenuEntryId": menu_entry_id,
+            },
+        )
+    
+    async def read_values(self, installation_id, datapoints):
+        return await self._post(
+            f"{API_BASE}/Datapoint/ReadValues/{installation_id}",
+            {
+                "DatapointValues": [
+                    {
+                        "$type": dp["type"],
+                        "DatapointConfigId": dp["config_id"],
+                        "DeviceId": dp["device_id"],
+                    }
+                    for dp in datapoints
+                ]
+            },
+        )
+    
+    async def write_value(self, installation_id, datapoint, value):
+        return await self._post(
+            f"{API_BASE}/Datapoint/WriteValues/{installation_id}",
+            {
+                "DatapointValues": [
+                    {
+                        "$type": datapoint["type"],
+                        "DatapointConfigId": datapoint["config_id"],
+                        "DeviceId": datapoint["device_id"],
+                        "Flags": 0,
+                        "Value": value,
+                    }
+                ]
+            },
+        )
