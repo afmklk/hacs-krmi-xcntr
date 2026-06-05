@@ -11,14 +11,14 @@ class KermiApi:
 
     async def _headers(self):
         return {
-            "Authorization": (
-                f"Bearer "
-                f"{await self.token_store.get_access_token()}"
-            ),
+            "Authorization": f"Bearer {token}",
             "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json;charset=UTF-8",
             "Origin": "https://portal.kermi.com",
-            "Referer": "https://portal.kermi.com/",
+            "Referer": (
+                "https://portal.kermi.com/XCenterUI/"
+                f"RemoteControlNew/de/DE/{self.installation_id}/homescreen"
+            ),
         }
 
     
@@ -32,23 +32,13 @@ class KermiApi:
         ) as r:
     
             text = await r.text()
-    
+            
             _LOGGER.warning(
-                "Kermi API POST %s -> %s",
-                url,
-                r.status,
+            "Kermi API POST %s -> %s body=%s",
+            url,
+            r.status,
+            text[:1000],
             )
-    
-            _LOGGER.warning(
-                "Kermi API response body: %s",
-                text,
-            )
-    
-            if r.status == 401:
-                _LOGGER.error(
-                    "Access token rejected by Kermi API. Body=%s",
-                    text,
-                )
     
             r.raise_for_status()
     
@@ -58,12 +48,10 @@ class KermiApi:
                 return text
 
     async def get_favorites(self, installation_id):
-        payload = {
-            "WithDetails": True,
-            "OnlyHomeScreen": True,
-        }
-    
         return await self._post(
             f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
-            payload,
+            {
+                "WithDetails": True,
+                "OnlyHomeScreen": True,
+            },
         )
