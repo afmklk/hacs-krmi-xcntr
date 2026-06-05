@@ -30,29 +30,35 @@ class KermiApi:
         }
     
     async def _post(self, url, payload=None):
-        headers = await self._headers()
+        if payload is None:
+            payload = {}
     
-        async with self.session.post(
-            url,
-            headers=headers,
-            json=payload,
-        ) as r:
+        for attempt in range(2):
+            async with self.session.post(
+                url,
+                headers=await self._headers(),
+                json=payload,
+            ) as r:
+                text = await r.text()
     
-            text = await r.text()
-            
-            _LOGGER.warning(
-            "Kermi API POST %s -> %s body=%s",
-            url,
-            r.status,
-            text[:1000],
-            )
+                _LOGGER.debug(
+                    "Kermi API POST %s -> %s body=%s",
+                    url,
+                    r.status,
+                    text[:1000],
+                )
     
-            r.raise_for_status()
+                if r.status == 401 and attempt == 0:
+                    _LOGGER.warning("Kermi token rejected; refreshing and retrying once")
+                    await self.token_store.refresh()
+                    continue
     
-            try:
-                return await r.json()
-            except Exception:
-                return text
+                r.raise_for_status()
+    
+                try:
+                    return await r.json()
+                except Exception:
+                    return text
 
     async def get_favorites(self, installation_id):
         return await self._post(
