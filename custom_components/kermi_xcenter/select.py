@@ -13,7 +13,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
     for dp in datapoints.values():
         config = dp.get("config", {})
 
-        if not config.get("PossibleValues"):
+        possible_values = config.get("PossibleValues") or {}
+            
+        if not possible_values:
+            continue
+        
+        if set(possible_values.keys()) <= {"True", "False", "true", "false", "An", "Aus", "an", "aus", "On", "on", "Off", "off"}:
             continue
 
         if not config.get("AllowedInAction"):
@@ -40,12 +45,6 @@ class KermiSelect(CoordinatorEntity, SelectEntity):
         self._option_to_value = {}
 
         possible_values = config.get("PossibleValues") or {}
-        
-        if not possible_values:
-            continue
-        
-        if set(possible_values.keys()) <= {"True", "False", "true", "false", "An", "Aus", "an", "aus", "On", "on", "Off", "off"}:
-            continue
 
         for raw_value, label in possible_values.items():
             value = _parse_value(raw_value)
