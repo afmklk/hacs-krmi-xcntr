@@ -13,12 +13,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
     for dp in datapoints.values():
         config = dp.get("config", {})
 
+        if config.get("Hidden") or config.get("Ignore"):
+            continue
+
         possible_values = config.get("PossibleValues") or {}
-            
+
         if not possible_values:
             continue
-        
-        if set(possible_values.keys()) <= {"True", "False", "true", "false", "An", "Aus", "an", "aus", "On", "on", "Off", "off"}:
+
+        possible_keys = {str(key).lower() for key in possible_values.keys()}
+        if possible_keys and possible_keys <= {"true", "false", "an", "aus", "on", "off"}:
             continue
 
         if not config.get("AllowedInAction"):
@@ -38,7 +42,11 @@ class KermiSelect(CoordinatorEntity, SelectEntity):
         self.datapoint = datapoint
 
         config = datapoint.get("config", {})
-        self._attr_name = config.get("DisplayName") or config.get("WellKnownName")
+        self._attr_name = (
+            config.get("DisplayName")
+            or config.get("WellKnownName")
+            or "Kermi"
+        )
         self._attr_unique_id = f"kermi_xcenter_select_{datapoint['config_id']}"
 
         self._value_to_option = {}
@@ -62,7 +70,7 @@ class KermiSelect(CoordinatorEntity, SelectEntity):
             {},
         )
 
-        value = dp.get("value", {}).get("Value")
+        value = (dp.get("value") or {}).get("Value")
         return self._value_to_option.get(value)
 
     async def async_select_option(self, option):
@@ -87,10 +95,10 @@ def _parse_value(value):
     if isinstance(value, float):
         return value
 
-    if value == "True":
+    if str(value).lower() == "true":
         return True
 
-    if value == "False":
+    if str(value).lower() == "false":
         return False
 
     try:
