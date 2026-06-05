@@ -46,7 +46,7 @@ class KermiCoordinator(DataUpdateCoordinator):
             hass,
             logger=_LOGGER,
             name="kermi_xcenter",
-            update_interval=timedelta(seconds=30),
+            update_interval=timedelta(minutes=5),
         )
         self.api = api
         self.installation_id = installation_id
