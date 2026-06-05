@@ -68,7 +68,7 @@ class KermiApi:
     async def get_favorites(self, installation_id):
         return await self._post(
             f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
-            {"WithDetails": True, "OnlyHomeScreen": True},
+            {"WithDetails": True, "OnlyHomeScreen": False},
         )
 
     async def _get(self, url):
