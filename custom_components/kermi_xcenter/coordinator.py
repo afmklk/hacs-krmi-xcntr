@@ -5,6 +5,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+ZERO_DEVICE_ID = "00000000-0000-0000-0000-000000000000"
+
 
 def _value_type_from_config(config):
     return config.get("$type", "").replace(
@@ -66,6 +68,8 @@ class KermiCoordinator(DataUpdateCoordinator):
                 {
                     "MenuEntryId": menu_id,
                     "WithDetails": True,
+                    "IncludeDatapoints": True,
+                    "IncludeChildren": True,
                 },
             )
         except Exception:
@@ -75,10 +79,20 @@ class KermiCoordinator(DataUpdateCoordinator):
         response = data.get("ResponseData") or {}
 
         device_id = response.get("DeviceId")
-        if device_id:
+        if device_id and device_id != ZERO_DEVICE_ID:
             self._device_ids.add(device_id)
 
-        for bundle in response.get("Bundles", []) or []:
+        menu_entries = response.get("MenuEntries", []) or []
+        bundles = response.get("Bundles", []) or []
+
+        _LOGGER.info(
+            "Kermi menu %s: %s children, %s bundles",
+            menu_id,
+            len(menu_entries),
+            len(bundles),
+        )
+
+        for bundle in bundles:
             for raw_dp in bundle.get("Datapoints", []) or []:
                 dp = _normalize_datapoint(
                     raw_dp,
@@ -88,52 +102,13 @@ class KermiCoordinator(DataUpdateCoordinator):
                 if dp["config_id"]:
                     self._datapoints[dp["config_id"]] = dp
 
-                if dp["device_id"]:
+                if dp["device_id"] and dp["device_id"] != ZERO_DEVICE_ID:
                     self._device_ids.add(dp["device_id"])
 
-        for child in response.get("MenuEntries", []) or []:
+        for child in menu_entries:
             child_id = child.get("MenuEntryId")
             if child_id:
                 await self._discover_menu(child_id)
-
-    async def _discover_device_configs(self):
-        for device_id in list(self._device_ids):
-            try:
-                data = await self.api.get_configs_by_device(
-                    self.installation_id,
-                    device_id,
-                )
-            except Exception:
-                _LOGGER.exception(
-                    "Failed to discover datapoint configs for device %s",
-                    device_id,
-                )
-                continue
-
-            for config in data.get("ResponseData", []) or []:
-                config_id = config.get("DatapointConfigId")
-
-                if not config_id:
-                    continue
-
-                if config_id not in self._datapoints:
-                    self._datapoints[config_id] = {
-                        "config_id": config_id,
-                        "device_id": device_id,
-                        "type": _value_type_from_config(config),
-                        "config": config,
-                        "value": {},
-                    }
-                else:
-                    self._datapoints[config_id]["config"] = config
-                    self._datapoints[config_id]["device_id"] = (
-                        self._datapoints[config_id].get("device_id")
-                        or device_id
-                    )
-                    self._datapoints[config_id]["type"] = (
-                        self._datapoints[config_id].get("type")
-                        or _value_type_from_config(config)
-                    )
 
     async def _discover(self):
         favorites = await self.api.get_favorites(self.installation_id)
@@ -150,7 +125,7 @@ class KermiCoordinator(DataUpdateCoordinator):
                 if dp["config_id"]:
                     self._datapoints[dp["config_id"]] = dp
 
-                if dp["device_id"]:
+                if dp["device_id"] and dp["device_id"] != ZERO_DEVICE_ID:
                     self._device_ids.add(dp["device_id"])
 
                 menu_id = dp["config"].get("MenuEntryId")
@@ -163,22 +138,18 @@ class KermiCoordinator(DataUpdateCoordinator):
                     menu_ids.add(menu_id)
 
                 device_id = item.get("DeviceId")
-                if device_id and device_id != "00000000-0000-0000-0000-000000000000":
+                if device_id and device_id != ZERO_DEVICE_ID:
                     self._device_ids.add(device_id)
 
             else:
                 device_id = item.get("DeviceId")
-                if device_id and device_id != "00000000-0000-0000-0000-000000000000":
+                if device_id and device_id != ZERO_DEVICE_ID:
                     self._device_ids.add(device_id)
 
         for menu_id in menu_ids:
             await self._discover_menu(menu_id)
 
-        # Disabled for now: Kermi cloud returns 400 for GetConfigsByDeviceId here.
-        # Menu/GetChildEntries already provides datapoint configs.
-        # await self._discover_device_configs()
-
-        _LOGGER.info(
+        _LOGGER.warning(
             "Kermi discovery completed: %s datapoints, %s devices, %s menus",
             len(self._datapoints),
             len(self._device_ids),
