@@ -6,6 +6,7 @@ PLATFORMS = [
     Platform.SENSOR,
     Platform.NUMBER,
     Platform.SELECT,
+    Platform.SWITCH,
 ]
 
 AUTH_URL = "https://portal.kermi.com/openid/connect/authorize"
