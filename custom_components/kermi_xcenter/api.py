@@ -26,14 +26,14 @@ class KermiApi:
             "wellknown-datapoints-BE2r4Sgi.js"
         )
 
-    async with self.session.get(
-        url,
-        headers={
-            "Accept": "*/*",
-        },
-    ) as r:
-        r.raise_for_status()
-        return await r.text()
+        async with self.session.get(
+            url,
+            headers={
+                "Accept": "*/*",
+            },
+        ) as r:
+            r.raise_for_status()
+            return await r.text()
     
     async def _post(self, url, payload=None):
         if payload is None:
