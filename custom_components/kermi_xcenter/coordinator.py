@@ -108,6 +108,14 @@ class KermiCoordinator(DataUpdateCoordinator):
             len(self._datapoints) - count_before,
             len(self._datapoints),
         )
+        
+        _LOGGER.warning(
+            "Kermi favorite found: %s type=%s config=%s device=%s",
+            item.get("DisplayName"),
+            item.get("$type"),
+            item.get("DatapointConfigId"),
+            item.get("DeviceId"),
+        )
 
     async def _discover_wellknown_heatpump_datapoints(self):
         heatpump_devices = [
