@@ -81,14 +81,14 @@ class KermiApi:
                 except Exception:
                     return text
 
-	async def get_heatpump_devices(self, installation_id):
-		return await self._post(
-			f"{API_BASE}/Device/GetDevicesByType/{installation_id}",
-			{
-				"DeviceType": 2,
-				"WithDetails": False,
-			},
-		)
+    async def get_heatpump_devices(self, installation_id):
+        return await self._post(
+            f"{API_BASE}/Device/GetDevicesByType/{installation_id}",
+            {
+                "DeviceType": 2,
+                "WithDetails": False,
+            },
+        )
 
     async def get_configs(self, installation_id, device_type, device_version, config_ids):
         return await self._post(
