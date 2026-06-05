@@ -12,17 +12,23 @@ class KermiApi:
     async def _headers(self):
         return {
             "Authorization": (
-                f"Bearer {await self.token_store.get_access_token()}"
+                f"Bearer "
+                f"{await self.token_store.get_access_token()}"
             ),
-            "Accept": "application/json",
+            "Accept": "application/json, text/plain, */*",
             "Content-Type": "application/json;charset=UTF-8",
+            "Origin": "https://portal.kermi.com",
+            "Referer": "https://portal.kermi.com/",
         }
 
     async def _post(self, url, payload=None):
-        if payload is None:
-            payload = {}
-    
         headers = await self._headers()
+    
+        _LOGGER.warning(
+            "Kermi API POST %s payload=%s",
+            url,
+            payload,
+        )
     
         async with self.session.post(
             url,
@@ -33,8 +39,7 @@ class KermiApi:
             text = await r.text()
     
             _LOGGER.warning(
-                "Kermi API POST %s -> %s body=%s",
-                url,
+                "Kermi API response %s -> %s",
                 r.status,
                 text[:1000],
             )
@@ -43,7 +48,6 @@ class KermiApi:
                 _LOGGER.error(
                     "Access token rejected by Kermi API"
                 )
-                raise ValueError("Access token rejected")
     
             r.raise_for_status()
     
@@ -53,6 +57,12 @@ class KermiApi:
                 return text
 
     async def get_favorites(self, installation_id):
+        payload = {
+            "WithDetails": True,
+            "OnlyHomeScreen": True,
+        }
+    
         return await self._post(
-            f"{API_BASE}/Favorite/GetFavorites/{installation_id}"
+            f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
+            payload,
         )
