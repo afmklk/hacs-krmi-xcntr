@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 
@@ -13,6 +14,8 @@ class TokenStore:
         self.refresh_token = None
         self.expires_at = 0
 
+        self._refresh_lock = asyncio.Lock()
+
     async def set_initial(self, token_data):
         self.access_token = token_data["access_token"]
         self.refresh_token = token_data.get("refresh_token")
@@ -22,24 +25,34 @@ class TokenStore:
         if not self.access_token:
             raise ValueError("No access token available")
 
-        # Refresh 5 minutes before expiry
         if self.refresh_token and time.time() >= self.expires_at - 300:
             await self.refresh()
 
         return self.access_token
 
     async def refresh(self):
-        if not self.refresh_token:
-            raise ValueError("No refresh token available")
+        async with self._refresh_lock:
+            if not self.refresh_token:
+                raise ValueError("No refresh token available")
 
-        data = await self.client.refresh(self.refresh_token)
+            old_refresh_token = self.refresh_token
 
-        if "access_token" not in data:
-            raise ValueError(f"Token refresh failed: {data}")
+            data = await self.client.refresh(old_refresh_token)
 
-        self.access_token = data["access_token"]
-        self.refresh_token = data.get("refresh_token", self.refresh_token)
-        self.expires_at = time.time() + data.get("expires_in", 3600)
+            if "access_token" not in data:
+                raise ValueError(f"Token refresh failed: {data}")
 
-        if self.update_callback:
-            self.update_callback(data)
+            self.access_token = data["access_token"]
+            self.refresh_token = data.get("refresh_token", old_refresh_token)
+            self.expires_at = time.time() + data.get("expires_in", 3600)
+
+            if self.update_callback:
+                self.update_callback(
+                    {
+                        "access_token": self.access_token,
+                        "refresh_token": self.refresh_token,
+                        "expires_in": data.get("expires_in", 3600),
+                    }
+                )
+
+            _LOGGER.debug("Kermi token refreshed and persisted")
