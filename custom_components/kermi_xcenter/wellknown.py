@@ -35,6 +35,7 @@ def extract_wellknown_ids(js_text):
                 "EnergyMode",
                 "MK3Name",
                 "Heatpump_",
+                "System_IsPresent"
             )
         )
     }
