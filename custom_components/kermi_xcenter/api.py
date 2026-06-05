@@ -19,6 +19,22 @@ class KermiApi:
             "Content-Type": "application/json;charset=UTF-8",
         }
 
+    async def get_wellknown_datapoints_js(self):
+    url = (
+        "https://portal.kermi.com"
+        "/XCenterUI/remotecontrolnew/generated/"
+        "wellknown-datapoints-BE2r4Sgi.js"
+    )
+
+    async with self.session.get(
+        url,
+        headers={
+            "Accept": "*/*",
+        },
+    ) as r:
+        r.raise_for_status()
+        return await r.text()
+    
     async def _post(self, url, payload=None):
         if payload is None:
             payload = {}

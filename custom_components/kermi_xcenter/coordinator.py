@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .wellknown import HEATPUMP_WELLKNOWN_IDS
+from .wellknown import HEATPUMP_WELLKNOWN_IDS, extract_wellknown_ids
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -95,46 +95,62 @@ class KermiCoordinator(DataUpdateCoordinator):
             d for d in self._devices.values()
             if d.get("DeviceType") == 2
         ]
-
+    
         if not heatpump_devices:
             _LOGGER.warning("No Kermi heatpump device with DeviceType=2 found")
             return
-
+    
+        try:
+            js_text = await self.api.get_wellknown_datapoints_js()
+            wellknown_ids = extract_wellknown_ids(js_text)
+        except Exception:
+            _LOGGER.exception("Failed to load dynamic well-known datapoints JS")
+            wellknown_ids = {}
+    
+        if not wellknown_ids:
+            wellknown_ids = HEATPUMP_WELLKNOWN_IDS
+    
+        _LOGGER.warning(
+            "Kermi well-known datapoints loaded: %s dynamic, %s fallback",
+            len(wellknown_ids),
+            len(HEATPUMP_WELLKNOWN_IDS),
+        )
+    
         for device in heatpump_devices:
             device_id = device["DeviceId"]
             device_type = device["DeviceType"]
             device_version = device.get("SoftwareVersion") or "6.3"
-
-            ids = list(dict.fromkeys(HEATPUMP_WELLKNOWN_IDS.values()))
-
+    
+            ids = list(dict.fromkeys(wellknown_ids.values()))
+    
             data = await self.api.get_configs(
                 self.installation_id,
                 device_type,
                 device_version,
                 ids,
             )
-
+    
             configs = data.get("ResponseData", []) or []
-
+    
+            reverse_lookup = {
+                value.lower(): key
+                for key, value in wellknown_ids.items()
+            }
+    
             _LOGGER.warning(
                 "Kermi well-known config discovery for %s: requested=%s returned=%s",
                 device.get("Name", device_id),
                 len(ids),
                 len(configs),
             )
-
-            reverse_lookup = {
-                value.lower(): key
-                for key, value in HEATPUMP_WELLKNOWN_IDS.items()
-            }
-
+    
             for config in configs:
                 config_id = config.get("DatapointConfigId")
                 if not config_id:
                     continue
-
+    
                 wellknown_name = reverse_lookup.get(config_id.lower())
-
+    
                 self._datapoints[config_id] = _normalize_config(
                     config,
                     device_id,

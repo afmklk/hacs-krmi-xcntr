@@ -1,3 +1,5 @@
+import re
+
 HEATPUMP_WELLKNOWN_IDS = {
     "HP_AktuelleMotorleistungKW": "3576624b-1af4-4406-8e8b-12500acd4840",
     "HP_FanAktuelleLeistung": "7605e769-5bcf-4e37-97e4-e1cded35dc54",
@@ -13,3 +15,24 @@ HEATPUMP_WELLKNOWN_IDS = {
     "ControlKermiMK3": "bad65805-1d09-42d5-b00d-0abce6019bef",
     "HP_HeizwasserBetriebsartHK3": "5f344208-662b-44a9-a349-9020297413f3",
 }
+
+
+def extract_wellknown_ids(js_text):
+    pattern = r"([A-Za-z0-9_]+):\s*`([0-9a-fA-F-]{36})`"
+
+    return {
+        name: config_id.lower()
+        for name, config_id in re.findall(pattern, js_text or "")
+        if name.startswith(
+            (
+                "HP_",
+                "HPxyz_",
+                "EcoODU_",
+                "EcoIDU_",
+                "ControlKermi",
+                "ManualSaison",
+                "SummerMode",
+                "EnergyMode",
+            )
+        )
+    }
