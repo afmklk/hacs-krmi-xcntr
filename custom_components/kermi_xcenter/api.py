@@ -20,11 +20,11 @@ class KermiApi:
         }
 
     async def get_wellknown_datapoints_js(self):
-    url = (
-        "https://portal.kermi.com"
-        "/XCenterUI/remotecontrolnew/generated/"
-        "wellknown-datapoints-BE2r4Sgi.js"
-    )
+        url = (
+            "https://portal.kermi.com"
+            "/XCenterUI/remotecontrolnew/generated/"
+            "wellknown-datapoints-BE2r4Sgi.js"
+        )
 
     async with self.session.get(
         url,
