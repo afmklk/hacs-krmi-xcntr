@@ -63,13 +63,7 @@ class TokenStore:
                 self._refresh_failed = True
                 raise ValueError("No refresh token available")
 
-            old_refresh_token = self.refresh_token
-
-            try:
-                data = await self.client.refresh(old_refresh_token)
-            except Exception:
-                self._refresh_failed = True
-                raise
+            data = await self.client.refresh(self.refresh_token)
 
             new_access_token = data.get("access_token")
             new_refresh_token = data.get("refresh_token")
@@ -80,13 +74,12 @@ class TokenStore:
                 raise ValueError(f"Refresh response missing access_token: {data}")
 
             if not new_refresh_token:
-                # Kermi/OpenIddict appears to rotate refresh tokens.
-                # If no new refresh token is returned, keeping the old one may cause
-                # 'already redeemed' or 'no longer valid' on the next refresh.
-                _LOGGER.warning(
-                    "Kermi refresh response did not include a new refresh token"
+                self._refresh_failed = True
+                raise ValueError(
+                    "Refresh response missing refresh_token. "
+                    "Kermi refresh tokens appear to be rotating, so keeping the old "
+                    "refresh token would likely break the next refresh."
                 )
-                new_refresh_token = old_refresh_token
 
             self.access_token = new_access_token
             self.refresh_token = new_refresh_token
