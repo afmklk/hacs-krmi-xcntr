@@ -1,7 +1,7 @@
 # Kermi X-Center Cloud API integration for Home Assistant
 ![Icon](/custom_components/kermi_xcenter/brand/icon.png)
 
-A custom Home Assistant integration for Kermi X-Center heat pump systems via cloud API (no Modbus or local HTTP API access required!).
+A custom Home Assistant integration for Kermi X-Center heat pump systems that retreives data via cloud API (no Modbus or local HTTP API access required).
 
 ## Features
 - Cloud API integration (OpenID Connect)
