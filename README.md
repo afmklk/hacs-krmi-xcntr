@@ -1,7 +1,7 @@
 # Kermi X-Center Cloud API integration for Home Assistant
-![Icon](/custom_components/kermi_xcenter/brand/icon.png)
-
 A custom integration to connect your Kermi X-Center heat pump to Home Assistant via the Kermi cloud platform (no Modbus or local HTTP API access required). Discover hundreds of datapoints, monitor system status, and control supported settings directly from Home Assistant.
+
+![Screenshot](/screenshot.png)
 
 ## Features
 - Cloud-based OAuth authentication
@@ -19,7 +19,7 @@ This integration has been tested with:
 - Kermi Heat pump: x-change dynamic (air/water heat pump), Firmware version 6.3
 
 Other Kermi heat pump models with x-center interface module should also work.
-### Remote Servicing via x-center Portal
+### Remote Servicing via Kermi x-center Portal
 Your Kermi x-center must be connected to the internet and registered with the x-center portal to enable remote servicing. See https://www.kermi.com/en/de/products/heat-pumps/x-center-controller/ for details. To register, go to https://portal.kermi.com/xcenterui.  
 
 ## Installation
