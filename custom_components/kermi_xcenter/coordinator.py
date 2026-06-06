@@ -94,6 +94,7 @@ class KermiCoordinator(DataUpdateCoordinator):
         self._discovered = False
         self._datapoints = {}
         self._devices = {}
+        self._config_versions = {}
 
     async def _discover_devices(self):
         data = await self.api.get_heatpump_devices(self.installation_id)
@@ -104,6 +105,7 @@ class KermiCoordinator(DataUpdateCoordinator):
                 continue
 
             self._devices[device_id] = device
+            self._config_versions[device_id] = device.get("ConfigVersion")
 
         self._devices.setdefault(
             ZERO_DEVICE_ID,
@@ -113,6 +115,7 @@ class KermiCoordinator(DataUpdateCoordinator):
                 "SoftwareVersion": SYSTEM_DEVICE_VERSION,
                 "Name": "Kermi X-Center",
                 "Serial": None,
+                "ConfigVersion": None,
             },
         )
 
@@ -244,6 +247,37 @@ class KermiCoordinator(DataUpdateCoordinator):
                 reverse_lookup=reverse_lookup,
             )
 
+    async def _check_config_version_changes(self):
+        data = await self.api.get_heatpump_devices(self.installation_id)
+
+        changed = False
+
+        for device in data.get("ResponseData", []) or []:
+            device_id = device.get("DeviceId")
+            if not device_id or device_id == ZERO_DEVICE_ID:
+                continue
+
+            new_version = device.get("ConfigVersion")
+            old_version = self._config_versions.get(device_id)
+
+            if (
+                old_version is not None
+                and new_version is not None
+                and new_version != old_version
+            ):
+                _LOGGER.info(
+                    "Kermi ConfigVersion changed for %s: %s -> %s",
+                    device.get("Name", device_id),
+                    old_version,
+                    new_version,
+                )
+                changed = True
+
+            self._config_versions[device_id] = new_version
+            self._devices[device_id] = device
+
+        return changed
+
     def _log_discovered_datapoints(self):
         sensor_count = 0
         number_count = 0
@@ -310,6 +344,16 @@ class KermiCoordinator(DataUpdateCoordinator):
             len(self._datapoints),
         )
 
+    async def _rediscover(self):
+        _LOGGER.info("Kermi configuration change detected, running rediscovery")
+
+        self._datapoints.clear()
+        self._devices.clear()
+        self._config_versions.clear()
+        self._discovered = False
+
+        await self._discover()
+
     async def _discover(self):
         await self._discover_devices()
         await self._discover_favorites()
@@ -328,6 +372,12 @@ class KermiCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         if not self._discovered:
             await self._discover()
+        else:
+            try:
+                if await self._check_config_version_changes():
+                    await self._rediscover()
+            except Exception:
+                _LOGGER.exception("Failed checking Kermi ConfigVersion")
 
         if self._datapoints:
             values = await self.api.read_values(
