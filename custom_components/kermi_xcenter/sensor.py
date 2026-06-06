@@ -83,6 +83,15 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
         return f"kermi_xcenter_sensor_{self.config_id}"
 
     @property
+    def extra_state_attributes(self):
+        config = self._cfg  # sensor.py
+        return {
+            "description": config.get("Description"),
+            "well_known_name": config.get("WellKnownName"),
+            "datapoint_config_id": self.config_id,
+        }
+
+    @property
     def native_unit_of_measurement(self):
         return self._cfg.get("Unit") or None
 

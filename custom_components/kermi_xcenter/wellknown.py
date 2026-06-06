@@ -21,6 +21,13 @@ HEATPUMP_WELLKNOWN_IDS = {
 	"Location" : "1432f73c-cc13-463f-a0c7-a03f4b18729a",
 	"Sunrise" : "3dd5e57b-2832-4903-b007-e55f6e681c8d",
 	"Sunset" : "81fff749-56a1-4f83-8022-a6140058a616",
+	"HP_Aussentemperatur_Saison" : "e0ed80e9-ec5a-4c5e-941e-f4430448cb27",
+	"HPxyz_Mk3OperationMode" : "d5bf0ed9-d35a-4676-907b-4028ba43b6f1",
+	"HP_StatusPumpeMK3" : "fb8b77a4-0a1b-4e43-8b2c-ec0dda15cd9b",
+	"ManualSaisonMK3" : "c1b82599-8e87-4cc2-83db-48da3cd53adf",
+	"SummerModeHk3" : "e381826f-59bc-4874-8bb9-a92d782b390c",
+	"ControlKermiMK3" : "bad65805-1d09-42d5-b00d-0abce6019bef",
+	 "HP_HeizwasserBetriebsartHK3" : "5f344208-662b-44a9-a349-9020297413f3",
 }
 
 

@@ -76,6 +76,15 @@ class KermiSelect(CoordinatorEntity, SelectEntity):
             "sw_version": device.get("SoftwareVersion"),
             "serial_number": device.get("Serial"),
         }
+        
+    @property
+    def extra_state_attributes(self):
+        config = self.datapoint.get("config", {})
+        return {
+            "description": config.get("Description"),
+            "well_known_name": config.get("WellKnownName"),
+            "datapoint_config_id": self.datapoint.get("config_id"),
+        }
 
     @property
     def current_option(self):
