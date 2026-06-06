@@ -116,7 +116,7 @@ class KermiCoordinator(DataUpdateCoordinator):
             },
         )
 
-        _LOGGER.warning(
+        _LOGGER.info(
             "Kermi device discovery completed: %s devices",
             len(self._devices),
         )
@@ -143,7 +143,7 @@ class KermiCoordinator(DataUpdateCoordinator):
             if dp["config_id"]:
                 self._datapoints[dp["config_id"]] = dp
 
-        _LOGGER.warning(
+        _LOGGER.info(
             "Kermi favorite datapoint discovery completed: added=%s total=%s",
             len(self._datapoints) - count_before,
             len(self._datapoints),
@@ -186,7 +186,7 @@ class KermiCoordinator(DataUpdateCoordinator):
 
         configs = data.get("ResponseData", []) or []
 
-        _LOGGER.warning(
+        _LOGGER.info(
             "Kermi config discovery for %s: device_type=%s version=%s "
             "requested=%s returned=%s",
             device.get("Name", device_id),
@@ -227,7 +227,7 @@ class KermiCoordinator(DataUpdateCoordinator):
             for key, value in wellknown_ids.items()
         }
 
-        _LOGGER.warning(
+        _LOGGER.info(
             "Kermi well-known datapoints loaded: static=%s dynamic=%s merged=%s",
             len(HEATPUMP_WELLKNOWN_IDS),
             len(dynamic_ids),
@@ -283,7 +283,7 @@ class KermiCoordinator(DataUpdateCoordinator):
             else:
                 sensor_count += 1
 
-            _LOGGER.info(
+            _LOGGER.debug(
                 "Kermi DP: name=%s config_id=%s device_id=%s type=%s unit=%s "
                 "value=%s writable=%s possible_values=%s min=%s max=%s ui_hint=%s",
                 _datapoint_label(dp),
@@ -299,7 +299,7 @@ class KermiCoordinator(DataUpdateCoordinator):
                 config.get("UIHint"),
             )
 
-        _LOGGER.warning(
+        _LOGGER.info(
             "Kermi datapoint classification: sensors=%s numbers=%s selects=%s "
             "switches=%s writable=%s total=%s",
             sensor_count,
@@ -315,7 +315,7 @@ class KermiCoordinator(DataUpdateCoordinator):
         await self._discover_favorites()
         await self._discover_wellknown_heatpump_datapoints()
 
-        _LOGGER.warning(
+        _LOGGER.info(
             "Kermi discovery completed: %s datapoints, %s devices",
             len(self._datapoints),
             len(self._devices),

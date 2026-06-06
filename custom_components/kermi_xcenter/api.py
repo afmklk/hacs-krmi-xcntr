@@ -51,12 +51,19 @@ class KermiApi:
                     "Kermi API POST %s -> %s body=%s",
                     url,
                     r.status,
-                    text[:1000],
+                    _safe_log_body(text),
                 )
 
                 if r.status == 401 and attempt == 0:
                     await self.token_store.refresh(force=True)
                     continue
+
+                if r.status >= 400:
+                    _LOGGER.warning(
+                        "Kermi API POST failed: %s -> %s",
+                        url,
+                        r.status,
+                    )
 
                 r.raise_for_status()
 
@@ -83,12 +90,19 @@ class KermiApi:
                     "Kermi API GET %s -> %s body=%s",
                     url,
                     r.status,
-                    text[:1000],
+                    _safe_log_body(text),
                 )
     
                 if r.status == 401 and attempt == 0:
                     await self.token_store.refresh(force=True)
                     continue
+
+                if r.status >= 400:
+                    _LOGGER.warning(
+                        "Kermi API GET failed: %s -> %s",
+                        url,
+                        r.status,
+                    )
     
                 r.raise_for_status()
     
@@ -147,3 +161,20 @@ class KermiApi:
                 ]
             },
         )
+
+def _safe_log_body(text):
+    if not text:
+        return ""
+
+    text = str(text)
+
+    for marker in (
+        "access_token",
+        "refresh_token",
+        "id_token",
+        "authorization",
+    ):
+        if marker.lower() in text.lower():
+            return "<redacted token response>"
+
+    return text[:1000]
