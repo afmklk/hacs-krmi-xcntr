@@ -38,7 +38,7 @@ Your Kermi x-center must be connected to the internet and registered with the x-
 Copy `custom_components/kermi_xcenter` into your Home Assistant config directory.
 
 ## Configuration
-1. Log into the X-Center portal at https://portal.kermi.com/xcenterui/. After login, open the remote control interface for your system (click on the green button) and copy your installation ID from the browser URL. Look for the alphanumeric ID directly after "/XCenterUI/RemoteControlNew/de/DE/" formatted XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX (this is not identical to the serial number of your device). Log out from the X-Center portal.
+1. Log into the X-Center portal at https://portal.kermi.com/xcenterui/. After login, open the remote control interface for your system (click on the green button) and copy your installation ID from the browser URL. Look for the alphanumeric ID directly after `/XCenterUI/RemoteControlNew/de/DE/` formatted `XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX` (this is not identical to the serial number of your device). Log out from the X-Center portal.
 2. In HA, go to **Settings → Devices & services**, click **Add Integration** and search for **Kermi X-Center**
 3. In the config flow, paste the installation ID you just copied.
 3. Copy the resulting auth URL from the `open_this_url` field in the config flow.
