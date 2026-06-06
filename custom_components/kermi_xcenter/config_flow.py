@@ -21,7 +21,7 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     def async_get_options_flow(config_entry):
-        return KermiOptionsFlow(config_entry)
+        return KermiOptionsFlow()
 
     async def async_step_user(self, user_input=None):
         if user_input is not None:
