@@ -48,6 +48,20 @@ class KermiSwitch(CoordinatorEntity, SwitchEntity):
         self._attr_unique_id = f"kermi_xcenter_switch_{datapoint['config_id']}"
 
     @property
+    def device_info(self):
+        device_id = self.datapoint.get("device_id")
+        device = self.coordinator.data.get("devices", {}).get(device_id, {})
+    
+        return {
+            "identifiers": {("kermi_xcenter", device_id or "system")},
+            "name": device.get("Name") or "Kermi X-Center",
+            "manufacturer": "Kermi",
+            "model": device.get("Name") or "X-Center",
+            "sw_version": device.get("SoftwareVersion"),
+            "serial_number": device.get("Serial"),
+        }
+
+    @property
     def is_on(self):
         dp = self.coordinator.data["datapoints"].get(
             self.datapoint["config_id"],

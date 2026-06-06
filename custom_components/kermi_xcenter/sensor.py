@@ -100,3 +100,17 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
             return possible.get(str(value), value)
     
         return value
+        
+    @property
+    def device_info(self):
+        device_id = self._dp.get("device_id")
+        device = self.coordinator.data.get("devices", {}).get(device_id, {})
+    
+        return {
+            "identifiers": {("kermi_xcenter", device_id or "system")},
+            "name": device.get("Name") or "Kermi X-Center",
+            "manufacturer": "Kermi",
+            "model": device.get("Name") or "X-Center",
+            "sw_version": device.get("SoftwareVersion"),
+            "serial_number": device.get("Serial"),
+        }

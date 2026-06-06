@@ -49,12 +49,26 @@ class KermiNumber(CoordinatorEntity, NumberEntity):
         self._attr_native_unit_of_measurement = config.get("Unit") or None
 
     @property
+    def device_info(self):
+        device_id = self.datapoint.get("device_id")
+        device = self.coordinator.data.get("devices", {}).get(device_id, {})
+    
+        return {
+            "identifiers": {("kermi_xcenter", device_id or "system")},
+            "name": device.get("Name") or "Kermi X-Center",
+            "manufacturer": "Kermi",
+            "model": device.get("Name") or "X-Center",
+            "sw_version": device.get("SoftwareVersion"),
+            "serial_number": device.get("Serial"),
+        }    
+    
+    @property
     def native_value(self):
         dp = self.coordinator.data["datapoints"].get(
             self.datapoint["config_id"],
             {},
         )
-        return dp.get("value", {}).get("Value")
+        return dp.get("value", {}).get("Value")      
 
     async def async_set_native_value(self, value):
         await self.coordinator.api.write_value(

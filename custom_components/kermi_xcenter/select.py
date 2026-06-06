@@ -64,6 +64,20 @@ class KermiSelect(CoordinatorEntity, SelectEntity):
         self._attr_options = list(self._option_to_value.keys())
 
     @property
+    def device_info(self):
+        device_id = self.datapoint.get("device_id")
+        device = self.coordinator.data.get("devices", {}).get(device_id, {})
+    
+        return {
+            "identifiers": {("kermi_xcenter", device_id or "system")},
+            "name": device.get("Name") or "Kermi X-Center",
+            "manufacturer": "Kermi",
+            "model": device.get("Name") or "X-Center",
+            "sw_version": device.get("SoftwareVersion"),
+            "serial_number": device.get("Serial"),
+        }
+
+    @property
     def current_option(self):
         dp = self.coordinator.data["datapoints"].get(self.datapoint["config_id"], {})
         value = (dp.get("value") or {}).get("Value")
