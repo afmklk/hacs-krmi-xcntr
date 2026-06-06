@@ -1,4 +1,5 @@
-# Kermi X-Center Integration
+# Kermi X-Center Cloud for Home Assistant
+![Icon](/custom_components/kermi_xcenter/brand/icon.png)
 
 Home Assistant integration for Kermi X-Center heat pump systems.
 
