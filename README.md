@@ -1,11 +1,11 @@
 # Kermi X-Center Cloud API integration for Home Assistant
 ![Icon](/custom_components/kermi_xcenter/brand/icon.png)
 
-A custom Home Assistant integration for Kermi X-Center heat pump systems that retreives data via cloud API (no Modbus or local HTTP API access required).
+A custom integration to connect your Kermi X-Center heat pump to Home Assistant via the Kermi cloud platform (no Modbus or local HTTP API access required). Discover hundreds of datapoints, monitor system status, and control supported settings directly from Home Assistant.
 
 ## Features
-- Cloud API integration (OpenID Connect)
-- Automatic datapoint discovery (including favorites)
+- Cloud-based OAuth authentication
+- Automatically discovers 100+ Kermi datapoints (including your personal favorites) and creates Home Assistant entities without manual configuration 
 - Read/write support
 - 5-minute refresh interval
 
@@ -34,7 +34,7 @@ Your Kermi x-center must be connected to the internet and registered with the x-
 Copy `custom_components/kermi_xcenter` into your Home Assistant config directory.
 
 ## Configuration
-1. Log into the X-Center portal for your system https://portal.kermi.com/xcenterui/. After login, copy your installation ID from the browser URL (look for the part directly after "portal.kermi.com/XCenterUI/RemoteControlNew/de/DE/" formatted XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX). Log out again.
+1. Log into the X-Center portal for your system https://portal.kermi.com/xcenterui/. After login, copy your installation ID from the browser URL (look for the part directly after "/XCenterUI/RemoteControlNew/de/DE/" formatted XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX). Log out again.
 2. In the HA config flow, paste the installation ID you just copied.
 3. Copy the resulting auth URL from the `open_this_url` field in the config flow.
 4. In a new browser window/tab, open developer tools > Network.
