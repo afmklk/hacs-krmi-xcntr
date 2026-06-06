@@ -1,5 +1,6 @@
 import logging
 
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import KermiApi
@@ -59,7 +60,14 @@ async def async_setup_entry(hass, entry):
         entry.data["installation_id"],
     )
 
-    await coordinator.async_config_entry_first_refresh()
+    try:
+        await coordinator.async_config_entry_first_refresh()
+    except Exception as err:
+        if _is_auth_error(err):
+            raise ConfigEntryAuthFailed(
+                "Kermi authentication failed. Re-authentication required."
+            ) from err
+        raise
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
@@ -82,3 +90,16 @@ async def async_unload_entry(hass, entry):
         hass.data[DOMAIN].pop(entry.entry_id, None)
 
     return unload_ok
+
+
+def _is_auth_error(err):
+    text = str(err).lower()
+
+    return (
+        "invalid_grant" in text
+        or "invalid_token" in text
+        or "token refresh failed" in text
+        or "token exchange failed" in text
+        or "authentication failed" in text
+        or "401" in text
+    )
