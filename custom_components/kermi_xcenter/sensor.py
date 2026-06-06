@@ -93,4 +93,10 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         raw = self._dp.get("value") or {}
-        return raw.get("Value")
+        value = raw.get("Value")
+    
+        possible = self._cfg.get("PossibleValues") or {}
+        if possible:
+            return possible.get(str(value), value)
+    
+        return value
