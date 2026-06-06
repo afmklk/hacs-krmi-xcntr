@@ -42,9 +42,9 @@ Copy `custom_components/kermi_xcenter` into your Home Assistant config directory
 2. In HA, go to **Settings → Devices & services**, click **Add Integration** and search for **Kermi X-Center**
 3. In the config flow, paste the installation ID you just copied.
 3. Copy the resulting auth URL from the `open_this_url` field in the config flow.
-4. In a new browser window/tab, open developer tools > Network.
+4. In a new browser window/tab, open **Developer tools → Network**.
 5. Paste and open the auth URL.
 6. Log in.
-7. In Network search/filter for the `loginCallback` request. Copy the full request URL (it should look something like https://portal.kermi.com/xcenterui/xcenter/auth/loginCallback?code=...).
+7. In Network search/filter for the `loginCallback` request. Copy the full request URL. It should look something like https://portal.kermi.com/xcenterui/xcenter/auth/loginCallback?code=...
 8. Paste that URL back into the `authorization_response_url` field in HA. If you get an "invalid_state" error, make sure you actually copied the request URL, not any response or referrer URLs.
 9. Done! The integration should auto-discover relevant datapoints for your device via the cloud API and set up corresponding entities.
