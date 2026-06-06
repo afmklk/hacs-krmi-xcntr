@@ -11,6 +11,26 @@ ZERO_DEVICE_ID = "00000000-0000-0000-0000-000000000000"
 SYSTEM_DEVICE_VERSION = "1.5.110.260"
 
 
+def _normalize_description(text):
+    if not text:
+        return text
+
+    return (
+        str(text)
+        .replace("\\n", "\n")
+        .replace("\\r", "")
+        .strip()
+    )
+
+
+def _normalize_config_dict(config, wellknown_name=None):
+    return {
+        **config,
+        "Description": _normalize_description(config.get("Description")),
+        "WellKnownName": config.get("WellKnownName") or wellknown_name,
+    }
+
+
 def _value_type_from_config(config):
     return config.get("$type", "").replace(
         "DatapointConfig`1",
@@ -23,10 +43,10 @@ def _normalize_config(config, device_id, wellknown_name=None):
         "config_id": config.get("DatapointConfigId"),
         "device_id": device_id,
         "type": _value_type_from_config(config),
-        "config": {
-            **config,
-            "WellKnownName": config.get("WellKnownName") or wellknown_name,
-        },
+        "config": _normalize_config_dict(
+            config,
+            wellknown_name=wellknown_name,
+        ),
         "value": {},
     }
 
@@ -45,7 +65,7 @@ def _normalize_favorite_datapoint(raw):
         "config_id": config_id,
         "device_id": value.get("DeviceId") or raw.get("DeviceId"),
         "type": value.get("$type") or _value_type_from_config(config),
-        "config": config,
+        "config": _normalize_config_dict(config),
         "value": value,
     }
 
