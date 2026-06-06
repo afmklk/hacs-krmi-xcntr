@@ -4,7 +4,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import KermiApi
-from .const import DOMAIN, PLATFORMS
+from .const import DOMAIN, PLATFORMS, DEFAULT_UPDATE_INTERVAL_MINUTES
 from .coordinator import KermiCoordinator
 from .token import TokenClient
 from .token_store import TokenStore
@@ -58,6 +58,10 @@ async def async_setup_entry(hass, entry):
         hass,
         api,
         entry.data["installation_id"],
+        entry.options.get(
+            "update_interval_minutes",
+            DEFAULT_UPDATE_INTERVAL_MINUTES,
+        ),
     )
 
     try:

@@ -4,7 +4,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DOMAIN
+from .const import DOMAIN, DEFAULT_UPDATE_INTERVAL_MINUTES
 from .oauth import KermiOAuth
 from .token import TokenClient
 
@@ -18,6 +18,10 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.state = None
         self.auth_url = None
         self.reauth_entry = None
+
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        return KermiOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input=None):
         if user_input is not None:
@@ -119,4 +123,34 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
+        )
+
+
+class KermiOptionsFlow(config_entries.OptionsFlow):
+    def __init__(self, config_entry):
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        if user_input is not None:
+            return self.async_create_entry(
+                title="",
+                data=user_input,
+            )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "update_interval_minutes",
+                        default=self.config_entry.options.get(
+                            "update_interval_minutes",
+                            DEFAULT_UPDATE_INTERVAL_MINUTES,
+                        ),
+                    ): vol.All(
+                        vol.Coerce(int),
+                        vol.Range(min=1, max=60),
+                    ),
+                }
+            ),
         )

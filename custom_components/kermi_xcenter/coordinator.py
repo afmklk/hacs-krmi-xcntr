@@ -81,12 +81,18 @@ def _datapoint_label(dp):
 
 
 class KermiCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass, api, installation_id):
+    def __init__(
+        self,
+        hass,
+        api,
+        installation_id,
+        update_interval_minutes,
+    ):
         super().__init__(
             hass,
             logger=_LOGGER,
             name="kermi_xcenter",
-            update_interval=timedelta(minutes=5),
+            update_interval=timedelta(minutes=update_interval_minutes),
         )
         self.api = api
         self.installation_id = installation_id
