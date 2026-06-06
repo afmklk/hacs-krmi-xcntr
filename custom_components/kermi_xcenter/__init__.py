@@ -1,6 +1,5 @@
 import logging
 
-from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import KermiApi
@@ -47,15 +46,6 @@ async def async_setup_entry(hass, entry):
             "expires_in": entry.data.get("expires_in", 3600),
         }
     )
-
-    # Claim the browser refresh token immediately so Home Assistant owns the
-    # rotated refresh token and persists it before the browser can redeem it again.
-    try:
-        await token_store.refresh(force=True)
-    except Exception as err:
-        raise ConfigEntryAuthFailed(
-            "Kermi token refresh failed. Reconfigure with fresh browser tokens."
-        ) from err
 
     api = KermiApi(
         session,
