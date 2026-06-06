@@ -2,6 +2,7 @@ import secrets
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DOMAIN, DEFAULT_UPDATE_INTERVAL_MINUTES
@@ -125,6 +126,7 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+
 class KermiOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         if user_input is not None:
@@ -143,10 +145,20 @@ class KermiOptionsFlow(config_entries.OptionsFlow):
                             "update_interval_minutes",
                             DEFAULT_UPDATE_INTERVAL_MINUTES,
                         ),
-                    ): vol.All(
-                        vol.Coerce(int),
-                        vol.Range(min=1, max=60),
-                    ),
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                "1",
+                                "2",
+                                "5",
+                                "10",
+                                "15",
+                                "30",
+                                "60",
+                            ],
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
                 }
             ),
         )
