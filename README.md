@@ -7,7 +7,7 @@ A custom integration to connect your Kermi X-Center heat pump to Home Assistant 
 - Cloud-based OAuth authentication
 - Automatically discovers 100+ Kermi datapoints (including your personal favorites) and creates Home Assistant entities without manual configuration 
 - Read/write support
-- 5-minute refresh interval
+- Configurable refresh interval
 
 ## Disclaimer
 🚨 This custom component is an independent project and is not affiliated with Kermi. Any trademarks or product names mentioned are the property of their respective owners. You bear the sole risk of a possible loss of the manufacturer's warranty or any damage that may be caused by your use of this integration. Make sure you know what you are doing! 🚨
