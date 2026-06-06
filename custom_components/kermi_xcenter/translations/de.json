@@ -1,39 +1,41 @@
 {
-  "config": {
-    "step": {
-      "user": {
-        "title": "Kermi X-Center",
-        "description": "Gib die Installations-ID deines Kermi X-Centers ein.",
-        "data": {
-          "installation_id": "Installations-ID"
+  "kermi_xcenter": {
+    "config": {
+      "step": {
+        "user": {
+          "title": "Kermi X-Center",
+          "description": "Gib die Installations-ID deines Kermi X-Centers ein.",
+          "data": {
+            "installation_id": "Installations-ID"
+          }
+        },
+        "auth": {
+          "title": "Kermi OAuth-Anmeldung",
+          "description": "Öffne die Autorisierungs-URL, melde dich bei Kermi an und füge anschließend die vollständige loginCallback-URL ein.",
+          "data": {
+            "open_this_url": "Diese URL öffnen",
+            "authorization_response_url": "Autorisierungs-Antwort-URL"
+          }
         }
       },
-      "auth": {
-        "title": "Kermi OAuth-Anmeldung",
-        "description": "Öffne die Autorisierungs-URL, melde dich bei Kermi an und füge anschließend die vollständige loginCallback-URL ein.",
-        "data": {
-          "open_this_url": "Diese URL öffnen",
-          "authorization_response_url": "Autorisierungs-Antwort-URL"
-        }
+      "error": {
+        "missing_code": "Die Callback-URL enthält keinen Autorisierungscode.",
+        "invalid_state": "Die Callback-URL gehört nicht zu diesem Anmeldeversuch.",
+        "auth_failed": "Die Authentifizierung mit Kermi ist fehlgeschlagen."
+      },
+      "abort": {
+        "already_configured": "Diese Kermi X-Center Installation ist bereits eingerichtet.",
+        "reauth_successful": "Die erneute Authentifizierung war erfolgreich."
       }
     },
-    "error": {
-      "missing_code": "Die Callback-URL enthält keinen Autorisierungscode.",
-      "invalid_state": "Die Callback-URL gehört nicht zu diesem Anmeldeversuch.",
-      "auth_failed": "Die Authentifizierung mit Kermi ist fehlgeschlagen."
-    },
-    "abort": {
-      "already_configured": "Diese Kermi X-Center Installation ist bereits eingerichtet.",
-      "reauth_successful": "Die erneute Authentifizierung war erfolgreich."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Kermi X-Center Optionen",
-        "description": "Lege fest, wie häufig Home Assistant Daten aus der Kermi Cloud aktualisiert. Kürzere Intervalle liefern schnellere Updates, erzeugen jedoch mehr API-Anfragen.",
-        "data": {
-          "update_interval_minutes": "Aktualisierungsintervall"
+    "options": {
+      "step": {
+        "init": {
+          "title": "Kermi X-Center Optionen",
+          "description": "Lege fest, wie häufig Home Assistant Daten aus der Kermi Cloud aktualisiert. Kürzere Intervalle liefern schnellere Updates, erzeugen jedoch mehr API-Anfragen.",
+          "data": {
+            "update_interval_minutes": "Aktualisierungsintervall"
+          }
         }
       }
     }
