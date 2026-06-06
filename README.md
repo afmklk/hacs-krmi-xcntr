@@ -28,15 +28,11 @@ Your Kermi x-center must be connected to the internet and registered with the x-
 
 1. Open HACS.
 2. Open the three-dot menu.
-4. Select **Custom repositories**.
-5. Add this [custom repository](https://hacs.xyz/docs/faq/custom_repositories) URL: https://github.com/afmklk/hacs-krmi-xcntr 
-6. Set category to **Integration**.
-7. Install **Kermi X-Center**.
-8. Restart Home Assistant.
-
-1. In HACS, add this [custom repository](https://hacs.xyz/docs/faq/custom_repositories): https://github.com/afmklk/hacs-krmi-xcntr (Category: Integration)
-2. Install and reboot HA.
-3. Go to Settings > Devices & Services, click "+ Add Integration" and search for "Kermi X-Center"
+3. Select **Custom repositories**.
+4. Add this [custom repository](https://hacs.xyz/docs/faq/custom_repositories) URL: https://github.com/afmklk/hacs-krmi-xcntr 
+5. Set category to **Integration**.
+6. Install **Kermi X-Center**.
+7. Restart Home Assistant.
 
 ### Manual
 Copy `custom_components/kermi_xcenter` into your Home Assistant config directory.
