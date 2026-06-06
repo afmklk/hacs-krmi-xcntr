@@ -8,6 +8,7 @@ from .wellknown import HEATPUMP_WELLKNOWN_IDS, extract_wellknown_ids
 _LOGGER = logging.getLogger(__name__)
 
 ZERO_DEVICE_ID = "00000000-0000-0000-0000-000000000000"
+SYSTEM_DEVICE_VERSION = "1.5.110.260"
 
 
 def _value_type_from_config(config):
@@ -84,6 +85,17 @@ class KermiCoordinator(DataUpdateCoordinator):
 
             self._devices[device_id] = device
 
+        self._devices.setdefault(
+            ZERO_DEVICE_ID,
+            {
+                "DeviceId": ZERO_DEVICE_ID,
+                "DeviceType": 0,
+                "SoftwareVersion": SYSTEM_DEVICE_VERSION,
+                "Name": "Kermi X-Center",
+                "Serial": None,
+            },
+        )
+
         _LOGGER.warning(
             "Kermi device discovery completed: %s devices",
             len(self._devices),
@@ -91,98 +103,126 @@ class KermiCoordinator(DataUpdateCoordinator):
 
     async def _discover_favorites(self):
         data = await self.api.get_favorites(self.installation_id)
-    
+
         count_before = len(self._datapoints)
-    
+
         for item in data.get("ResponseData", []) or []:
-            _LOGGER.warning(
+            _LOGGER.debug(
                 "Kermi favorite found: %s type=%s config=%s device=%s",
                 item.get("DisplayName"),
                 item.get("$type"),
                 item.get("DatapointConfigId"),
                 item.get("DeviceId"),
             )
-    
+
             if "FavoriteDatapoint" not in item.get("$type", ""):
                 continue
-    
+
             dp = _normalize_favorite_datapoint(item)
-    
+
             if dp["config_id"]:
                 self._datapoints[dp["config_id"]] = dp
-    
+
         _LOGGER.warning(
             "Kermi favorite datapoint discovery completed: added=%s total=%s",
             len(self._datapoints) - count_before,
             len(self._datapoints),
         )
 
-    async def _discover_wellknown_heatpump_datapoints(self):
-        heatpump_devices = [
-            d for d in self._devices.values()
-            if d.get("DeviceType") == 2
-        ]
+    async def _discover_configs_for_device(
+        self,
+        device,
+        wellknown_ids,
+        reverse_lookup,
+    ):
+        device_id = device["DeviceId"]
+        device_type = device["DeviceType"]
+        device_version = device.get("SoftwareVersion")
 
-        if not heatpump_devices:
-            _LOGGER.warning("No Kermi heatpump device with DeviceType=2 found")
-            return
+        if not device_version:
+            device_version = (
+                SYSTEM_DEVICE_VERSION
+                if device_type == 0
+                else "6.3"
+            )
+
+        ids = list(dict.fromkeys(wellknown_ids.values()))
 
         try:
-            js_text = await self.api.get_wellknown_datapoints_js()
-            wellknown_ids = extract_wellknown_ids(js_text)
-        except Exception:
-            _LOGGER.exception("Failed to load dynamic well-known datapoints JS")
-            wellknown_ids = {}
-
-        if not wellknown_ids:
-            wellknown_ids = HEATPUMP_WELLKNOWN_IDS
-
-        _LOGGER.warning(
-            "Kermi well-known datapoints loaded: %s dynamic, %s fallback",
-            len(wellknown_ids),
-            len(HEATPUMP_WELLKNOWN_IDS),
-        )
-
-        for device in heatpump_devices:
-            device_id = device["DeviceId"]
-            device_type = device["DeviceType"]
-            device_version = device.get("SoftwareVersion") or "6.3"
-
-            ids = list(dict.fromkeys(wellknown_ids.values()))
-
             data = await self.api.get_configs(
                 self.installation_id,
                 device_type,
                 device_version,
                 ids,
             )
-
-            configs = data.get("ResponseData", []) or []
-
-            reverse_lookup = {
-                value.lower(): key
-                for key, value in wellknown_ids.items()
-            }
-
-            _LOGGER.warning(
-                "Kermi well-known config discovery for %s: requested=%s returned=%s",
+        except Exception:
+            _LOGGER.exception(
+                "Kermi config discovery failed for %s device_type=%s version=%s",
                 device.get("Name", device_id),
-                len(ids),
-                len(configs),
+                device_type,
+                device_version,
+            )
+            return
+
+        configs = data.get("ResponseData", []) or []
+
+        _LOGGER.warning(
+            "Kermi config discovery for %s: device_type=%s version=%s "
+            "requested=%s returned=%s",
+            device.get("Name", device_id),
+            device_type,
+            device_version,
+            len(ids),
+            len(configs),
+        )
+
+        for config in configs:
+            config_id = config.get("DatapointConfigId")
+            if not config_id:
+                continue
+
+            wellknown_name = reverse_lookup.get(config_id.lower())
+
+            self._datapoints[config_id] = _normalize_config(
+                config,
+                device_id,
+                wellknown_name=wellknown_name,
             )
 
-            for config in configs:
-                config_id = config.get("DatapointConfigId")
-                if not config_id:
-                    continue
+    async def _discover_wellknown_heatpump_datapoints(self):
+        try:
+            js_text = await self.api.get_wellknown_datapoints_js()
+            dynamic_ids = extract_wellknown_ids(js_text)
+        except Exception:
+            _LOGGER.exception("Failed to load dynamic well-known datapoints JS")
+            dynamic_ids = {}
 
-                wellknown_name = reverse_lookup.get(config_id.lower())
+        wellknown_ids = {
+            **HEATPUMP_WELLKNOWN_IDS,
+            **dynamic_ids,
+        }
 
-                self._datapoints[config_id] = _normalize_config(
-                    config,
-                    device_id,
-                    wellknown_name=wellknown_name,
-                )
+        reverse_lookup = {
+            value.lower(): key
+            for key, value in wellknown_ids.items()
+        }
+
+        _LOGGER.warning(
+            "Kermi well-known datapoints loaded: static=%s dynamic=%s merged=%s",
+            len(HEATPUMP_WELLKNOWN_IDS),
+            len(dynamic_ids),
+            len(wellknown_ids),
+        )
+
+        for device in self._devices.values():
+            if device.get("DeviceType") not in (0, 2):
+                continue
+
+            await self._discover_configs_for_device(
+                device=device,
+                wellknown_ids=wellknown_ids,
+                reverse_lookup=reverse_lookup,
+            )
 
     def _log_discovered_datapoints(self):
         sensor_count = 0
@@ -205,9 +245,18 @@ class KermiCoordinator(DataUpdateCoordinator):
             if is_writable:
                 writable_count += 1
 
-            if possible_values:
+            possible_keys = {
+                str(key).lower()
+                for key in (possible_values or {}).keys()
+            }
+            is_boolean_enum = (
+                possible_keys
+                and possible_keys <= {"true", "false"}
+            )
+
+            if possible_values and not is_boolean_enum:
                 select_count += 1
-            elif isinstance(native_value, bool):
+            elif is_boolean_enum or isinstance(native_value, bool):
                 switch_count += 1
             elif isinstance(native_value, (int, float)) and is_writable:
                 number_count += 1
@@ -215,10 +264,11 @@ class KermiCoordinator(DataUpdateCoordinator):
                 sensor_count += 1
 
             _LOGGER.info(
-                "Kermi DP: name=%s config_id=%s type=%s unit=%s value=%s "
-                "writable=%s possible_values=%s min=%s max=%s ui_hint=%s",
+                "Kermi DP: name=%s config_id=%s device_id=%s type=%s unit=%s "
+                "value=%s writable=%s possible_values=%s min=%s max=%s ui_hint=%s",
                 _datapoint_label(dp),
                 dp.get("config_id"),
+                dp.get("device_id"),
                 dp.get("type"),
                 config.get("Unit"),
                 native_value,
