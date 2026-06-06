@@ -14,6 +14,14 @@ HEATPUMP_WELLKNOWN_IDS = {
     "ManualSaisonMK3": "c1b82599-8e87-4cc2-83db-48da3cd53adf",
     "ControlKermiMK3": "bad65805-1d09-42d5-b00d-0abce6019bef",
     "HP_HeizwasserBetriebsartHK3": "5f344208-662b-44a9-a349-9020297413f3",
+    "GlobalAlarmFlag" : "13ac9828-9ceb-418c-a084-2ac24a5e7866",
+    #"SystemRestartOS" : "ba044cbe-ac1a-421f-9225-226428e636a6",
+    "SoftwareVersion" : "89ef4512-8b6d-4919-a8cb-7de72cbfb002",
+    "System_SoftwareUpdateState" : "61afe142-5709-47f3-9624-511f6c96ec00",
+	"LocalTime" : "90b485ce-abed-4a56-a7b2-bd0727c7fbed",
+	"Location" : "1432f73c-cc13-463f-a0c7-a03f4b18729a",
+	"Sunrise" : "3dd5e57b-2832-4903-b007-e55f6e681c8d",
+	"Sunset" : "81fff749-56a1-4f83-8022-a6140058a616",
 }
 
 
@@ -34,8 +42,16 @@ def extract_wellknown_ids(js_text):
                 "SummerMode",
                 "EnergyMode",
                 "MK3Name",
-                "Heatpump_",
-                "System_IsPresent"
+                "Heatpump",
+                "System_IsPresent",
+                "GlobalAlarmFlag",
+                #"SystemRestartOS",
+                "SoftwareVersion",
+                "System_SoftwareUpdateState",
+                "LocalTime", 
+                "Location",
+                "Sunrise",
+                "Sunset",
             )
         )
     }
