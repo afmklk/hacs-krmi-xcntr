@@ -5,7 +5,8 @@
   "documentation": "https://github.com/afmklk/hacs-krmi-xcntr/",
   "requirements": [],
   "dependencies": [],
-  "codeowners": [],
+  "codeowners": ["@afmklk"],
   "config_flow": true,
-  "iot_class": "cloud_polling"
+  "iot_class": "cloud_polling",
+  "version": "0.1.0"
 }

@@ -24,7 +24,15 @@ Your Kermi x-center must be connected to the internet and registered with the x-
 
 ## Installation
 
-### Using [HACS](https://hacs.xyz/) (recommended)
+### Via [HACS](https://hacs.xyz/) (recommended)
+
+1. Open HACS.
+2. Open the three-dot menu.
+4. Select **Custom repositories**.
+5. Add this [custom repository](https://hacs.xyz/docs/faq/custom_repositories) URL: https://github.com/afmklk/hacs-krmi-xcntr 
+6. Set category to **Integration**.
+7. Install **Kermi X-Center**.
+8. Restart Home Assistant.
 
 1. In HACS, add this [custom repository](https://hacs.xyz/docs/faq/custom_repositories): https://github.com/afmklk/hacs-krmi-xcntr (Category: Integration)
 2. Install and reboot HA.
@@ -34,8 +42,9 @@ Your Kermi x-center must be connected to the internet and registered with the x-
 Copy `custom_components/kermi_xcenter` into your Home Assistant config directory.
 
 ## Configuration
-1. Log into the X-Center portal at https://portal.kermi.com/xcenterui/. After login, open the remote control interface for your system (click on the green button) and copy your installation ID from the browser URL (look for the alphanumeric ID directly after "/XCenterUI/RemoteControlNew/de/DE/" formatted XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX). Log out from the X-Center portal.
-2. In the HA config flow, paste the installation ID you just copied.
+1. Log into the X-Center portal at https://portal.kermi.com/xcenterui/. After login, open the remote control interface for your system (click on the green button) and copy your installation ID from the browser URL. Look for the alphanumeric ID directly after "/XCenterUI/RemoteControlNew/de/DE/" formatted XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX (this is not identical to the serial number of your device). Log out from the X-Center portal.
+2. In HA, go to **Settings → Devices & services**, click **Add Integration** and search for **Kermi X-Center**
+3. In the config flow, paste the installation ID you just copied.
 3. Copy the resulting auth URL from the `open_this_url` field in the config flow.
 4. In a new browser window/tab, open developer tools > Network.
 5. Paste and open the auth URL.
