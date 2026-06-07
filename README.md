@@ -39,14 +39,14 @@ Copy `custom_components/kermi_xcenter` into your Home Assistant config directory
 
 ## Configuration
 1. Log into the X-Center portal at https://portal.kermi.com/xcenterui/. After login, open the remote control interface for your system (click on the green button) and copy your installation ID from the browser URL. Look for the alphanumeric ID directly after `/XCenterUI/RemoteControlNew/de/DE/` formatted `XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX` (this is not identical to the serial number of your device). Log out from the X-Center portal.
-2. In HA, go to **Settings → Devices & services**, click **Add Integration** and search for **Kermi X-Center**
+2. In HA, go to **Settings → Devices & services**, click **Add Integration** and search for **Kermi X-Center**.
 3. In the config flow, paste the installation ID you just copied.
 3. Copy the resulting auth URL from the `open_this_url` field in the config flow.
 4. In a new browser window/tab, open **Developer tools → Network**.
 5. Paste and open the auth URL.
 6. Log in.
-7. In Network search/filter for the `loginCallback` request. Double-click to inspect Headers and copy the Referer from the Request Headers section. It should look something like https://portal.kermi.com/xcenterui/xcenter/auth/loginCallback?code=...
-8. Paste that URL back into the `authorization_response_url` field in HA. If you get an "invalid_state" error, make sure you actually copied the Referer URL, not the Request URL.
+7. In Network search/filter for the `loginCallback` request. Double-click to inspect Headers and copy the Referer from the Request Headers section. It should look something like `https://portal.kermi.com/xcenterui/xcenter/auth/loginCallback?code=...&state=...&iss=https%3A%2F%2Fportal.kermi.com%2Fopenid`
+8. Paste that URL back into the Callback URL field in HA. If you get an "invalid_state" error, make sure you actually copied the callback's Referer URL, not the Request URL.
 9. Done! 
 
 Optional: By default, data from the Kermi Cloud will be refreshed every 5 minutes. You can configure custom refresh intervals in the options flow (⚙️ icon).

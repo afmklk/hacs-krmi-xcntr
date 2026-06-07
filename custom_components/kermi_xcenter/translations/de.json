@@ -13,7 +13,7 @@
         "description": "Öffne die Autorisierungs-URL, melde dich bei Kermi an und füge anschließend die vollständige loginCallback-Referer-URL ein (nutze die Entwicklertools deines Browsers).",
         "data": {
           "open_this_url": "Diese URL öffnen",
-          "authorization_response_url": "Autorisierungs-Referer-URL"
+          "authorization_response_url": "Callback-URL"
         }
       }
     },

@@ -13,7 +13,7 @@
         "description": "Open the authorization URL, sign in to Kermi, then paste the full login callback referer URL (use browser dev tools).",
         "data": {
           "open_this_url": "Open this URL",
-          "authorization_response_url": "Authorization referer URL"
+          "authorization_response_url": "Callback URL"
         }
       }
     },
