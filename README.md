@@ -15,7 +15,7 @@ A custom integration to connect your Kermi X-Center heat pump to Home Assistant 
 ## Requirements
 ### Hardware Compatibility
 This integration has been tested with:
-- Kermi x-center control: x-center 40 (firmware version 1.5.110.260), x-center pro (1.6.5.44)
+- Kermi x-center control: x-center x40 (firmware versions 1.5.110.260), x-center pro (1.6.5.44)
 - Kermi heat pumps: x-change dynamic, x-change dynamic pro
 
 Other Kermi heat pump models with x-center interface module should also work.
