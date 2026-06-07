@@ -3,17 +3,17 @@
     "step": {
       "user": {
         "title": "Kermi X-Center",
-        "description": "Gib die Installations-ID deines Kermi X-Centers ein.",
+        "description": "Gib die Installations-ID deines Kermi X-Centers ein. Klicke den ?-Hilfe Button für Hinweise, wie du die Installations-ID findest.",
         "data": {
           "installation_id": "Installations-ID"
         }
       },
       "auth": {
         "title": "Kermi OAuth-Anmeldung",
-        "description": "Öffne die Autorisierungs-URL, melde dich bei Kermi an und füge anschließend die vollständige loginCallback-URL ein.",
+        "description": "Öffne die Autorisierungs-URL, melde dich bei Kermi an und füge anschließend die vollständige loginCallback-Referer-URL ein (nutze die Entwicklertools deines Browsers).",
         "data": {
           "open_this_url": "Diese URL öffnen",
-          "authorization_response_url": "Autorisierungs-Antwort-URL"
+          "authorization_response_url": "Autorisierungs-Referer-URL"
         }
       }
     },
