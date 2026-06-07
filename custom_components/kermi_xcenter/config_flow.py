@@ -2,13 +2,13 @@ import secrets
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.config_entries import OptionsFlowWithReload
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DOMAIN, DEFAULT_UPDATE_INTERVAL_MINUTES
 from .oauth import KermiOAuth
 from .token import TokenClient
-
 
 class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
@@ -126,7 +126,7 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-class KermiOptionsFlow(config_entries.OptionsFlow):
+class KermiOptionsFlow(OptionsFlowWithReload):
     async def async_step_init(self, user_input=None):
         if user_input is not None:
             return self.async_create_entry(
