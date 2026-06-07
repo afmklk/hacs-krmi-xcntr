@@ -31,7 +31,7 @@
     "step": {
       "init": {
         "title": "Kermi X-Center Options",
-        "description": "Configure how often Home Assistant refreshes data from the Kermi cloud. Shorter intervals provide faster updates but generate more API traffic.",
+        "description": "Configure how often Home Assistant refreshes data from the Kermi cloud. The default is {default_interval} minutes. Shorter intervals provide faster updates but generate more API traffic.",
         "data": {
           "update_interval_minutes": "Update interval"
         }

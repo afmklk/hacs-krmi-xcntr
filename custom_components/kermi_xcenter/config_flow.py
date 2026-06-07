@@ -126,35 +126,64 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-
 class KermiOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         if user_input is not None:
             return self.async_create_entry(
                 title="",
-                data=user_input,
+                data={
+                    "update_interval_minutes": int(
+                        user_input["update_interval_minutes"]
+                    ),
+                },
             )
+
+        current = self.config_entry.options.get(
+            "update_interval_minutes",
+            DEFAULT_UPDATE_INTERVAL_MINUTES,
+        )
 
         return self.async_show_form(
             step_id="init",
+            description_placeholders={
+                "default_interval": str(DEFAULT_UPDATE_INTERVAL_MINUTES),
+            },
             data_schema=vol.Schema(
                 {
                     vol.Required(
                         "update_interval_minutes",
-                        default=self.config_entry.options.get(
-                            "update_interval_minutes",
-                            DEFAULT_UPDATE_INTERVAL_MINUTES,
-                        ),
+                        default=str(current),
                     ): selector.SelectSelector(
                         selector.SelectSelectorConfig(
                             options=[
-                                "1",
-                                "2",
-                                "5",
-                                "10",
-                                "15",
-                                "30",
-                                "60",
+                                {
+                                    "value": "1",
+                                    "label": "1 minute",
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2 minutes",
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5 minutes",
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10 minutes",
+                                },
+                                {
+                                    "value": "15",
+                                    "label": "15 minutes",
+                                },
+                                {
+                                    "value": "30",
+                                    "label": "30 minutes",
+                                },
+                                {
+                                    "value": "60",
+                                    "label": "60 minutes",
+                                },
                             ],
                             mode=selector.SelectSelectorMode.DROPDOWN,
                         )
