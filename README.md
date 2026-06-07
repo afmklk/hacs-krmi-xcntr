@@ -15,12 +15,12 @@ A custom integration to connect your Kermi X-Center heat pump to Home Assistant 
 ## Requirements
 ### Hardware Compatibility
 This integration has been tested with:
-- Kermi IFM: x-center 40 (control system), Firmware version 1.5.110.260
-- Kermi Heat pump: x-change dynamic (air/water heat pump), Firmware version 6.3
+- Kermi x-center control: x-center 40 (firmware version 1.5.110.260), x-center pro (1.6.5.44)
+- Kermi heat pumps: x-change dynamic, x-change dynamic pro
 
 Other Kermi heat pump models with x-center interface module should also work.
 ### Remote Servicing via Kermi x-center Portal
-Your Kermi x-center must be connected to the internet and registered with the x-center portal to enable remote servicing. See https://www.kermi.com/en/de/products/heat-pumps/x-center-controller/ for details. To register, go to https://portal.kermi.com/xcenterui.  
+Your Kermi x-center control interface must be connected to the internet and registered with the x-center portal to enable remote control. See https://www.kermi.com/en/de/products/heat-pumps/x-center-controller/ for details. To register, go to https://portal.kermi.com/xcenterui.  
 
 ## Installation
 
@@ -51,4 +51,4 @@ Copy `custom_components/kermi_xcenter` into your Home Assistant config directory
 9. Paste that URL back into the Callback Referer URL field in HA. If you get an "invalid_state" error, make sure you actually copied the callback's **Referer URL**, not the **Request URL**.
 10. Done! 
 
-Optional: By default, data from the Kermi Cloud will be refreshed every 5 minutes. You can configure custom refresh intervals in the options flow (⚙️ icon).
+Optional: By default, data from the Kermi cloud will be refreshed every 5 minutes. You can configure custom refresh intervals in the options flow (⚙️ icon).
