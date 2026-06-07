@@ -147,6 +147,10 @@ class KermiOptionsFlow(OptionsFlowWithReload):
             step_id="init",
             description_placeholders={
                 "default_interval": str(DEFAULT_UPDATE_INTERVAL_MINUTES),
+				"description": (
+					"Configure how often Home Assistant refreshes "
+					"data from the Kermi cloud."
+				)
             },
             data_schema=vol.Schema(
                 {
