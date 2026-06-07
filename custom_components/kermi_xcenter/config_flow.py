@@ -147,10 +147,6 @@ class KermiOptionsFlow(OptionsFlowWithReload):
             step_id="init",
             description_placeholders={
                 "default_interval": str(DEFAULT_UPDATE_INTERVAL_MINUTES),
-				"description": (
-					"Configure how often Home Assistant refreshes "
-					"data from the Kermi cloud."
-				)
             },
             data_schema=vol.Schema(
                 {
@@ -162,31 +158,31 @@ class KermiOptionsFlow(OptionsFlowWithReload):
                             options=[
                                 {
                                     "value": "1",
-                                    "label": "1 minute",
+                                    "label": "1 min",
                                 },
                                 {
                                     "value": "2",
-                                    "label": "2 minutes",
+                                    "label": "2 min",
                                 },
                                 {
                                     "value": "5",
-                                    "label": "5 minutes",
+                                    "label": "5 min",
                                 },
                                 {
                                     "value": "10",
-                                    "label": "10 minutes",
+                                    "label": "10 min",
                                 },
                                 {
                                     "value": "15",
-                                    "label": "15 minutes",
+                                    "label": "15 min",
                                 },
                                 {
                                     "value": "30",
-                                    "label": "30 minutes",
+                                    "label": "30 min",
                                 },
                                 {
                                     "value": "60",
-                                    "label": "60 minutes",
+                                    "label": "60 min",
                                 },
                             ],
                             mode=selector.SelectSelectorMode.DROPDOWN,
