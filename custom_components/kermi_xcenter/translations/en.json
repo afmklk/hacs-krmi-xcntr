@@ -1,41 +1,39 @@
 {
-  "kermi_xcenter": {
-    "config": {
-      "step": {
-        "user": {
-          "title": "Kermi X-Center",
-          "description": "Enter your Kermi X-Center installation ID.",
-          "data": {
-            "installation_id": "Installation ID"
-          }
-        },
-        "auth": {
-          "title": "Kermi OAuth Login",
-          "description": "Open the authorization URL, sign in to Kermi, then paste the full login callback URL.",
-          "data": {
-            "open_this_url": "Open this URL",
-            "authorization_response_url": "Authorization response URL"
-          }
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kermi X-Center",
+        "description": "Enter your Kermi X-Center installation ID.",
+        "data": {
+          "installation_id": "Installation ID"
         }
       },
-      "error": {
-        "missing_code": "The callback URL does not contain an authorization code.",
-        "invalid_state": "The callback URL does not match this login attempt.",
-        "auth_failed": "Authentication with Kermi failed."
-      },
-      "abort": {
-        "already_configured": "This Kermi X-Center installation is already configured.",
-        "reauth_successful": "Re-authentication was successful."
+      "auth": {
+        "title": "Kermi OAuth Login",
+        "description": "Open the authorization URL, sign in to Kermi, then paste the full login callback URL.",
+        "data": {
+          "open_this_url": "Open this URL",
+          "authorization_response_url": "Authorization response URL"
+        }
       }
     },
-    "options": {
-      "step": {
-        "init": {
-          "title": "Kermi X-Center Options",
-          "description": "Configure how often Home Assistant refreshes data from the Kermi cloud. Shorter intervals provide faster updates but generate more API traffic.",
-          "data": {
-            "update_interval_minutes": "Update interval"
-          }
+    "error": {
+      "missing_code": "The callback URL does not contain an authorization code.",
+      "invalid_state": "The callback URL does not match this login attempt.",
+      "auth_failed": "Authentication with Kermi failed."
+    },
+    "abort": {
+      "already_configured": "This Kermi X-Center installation is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Kermi X-Center Options",
+        "description": "Configure how often Home Assistant refreshes data from the Kermi cloud. Shorter intervals provide faster updates but generate more API traffic.",
+        "data": {
+          "update_interval_minutes": "Update interval"
         }
       }
     }
