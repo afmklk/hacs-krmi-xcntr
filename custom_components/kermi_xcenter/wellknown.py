@@ -45,6 +45,7 @@ WELLKNOWN_PREFIXES = (
     "Location",
     "Sunrise",
     "Sunset",
+    "Rubin_",
 )
 
 
