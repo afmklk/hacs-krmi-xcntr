@@ -1,9 +1,9 @@
 import logging
 import re
 from urllib.parse import urljoin
-from .wellknown import WELLKNOWN_PREFIXES
 
 from .const import API_BASE
+from .wellknown import WELLKNOWN_PREFIXES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class KermiApi:
         candidate_pages = [
             "https://portal.kermi.com/XCenterUI/remotecontrolnew/de/DE",
             #"https://portal.kermi.com/XCenterUI/remotecontrol/de/DE",
+            #"https://portal.kermi.com/XCenterUI/xcenter/de/de",
         ]
 
         script_urls = []
@@ -151,12 +152,6 @@ class KermiApi:
                 except Exception:
                     return text
 
-    async def get_favorites(self, installation_id):
-        return await self._post(
-            f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
-            {"WithDetails": True, "OnlyHomeScreen": False},
-        )
-
     async def _get(self, url):
         for attempt in range(2):
             async with self.session.get(
@@ -190,14 +185,58 @@ class KermiApi:
                 except Exception:
                     return text
 
-    async def get_heatpump_devices(self, installation_id):
+    async def get_favorites(self, installation_id):
+        return await self._post(
+            f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
+            {"WithDetails": True, "OnlyHomeScreen": False},
+        )
+
+    async def get_all_devices(self, installation_id):
+        return await self._get(
+            f"{API_BASE}/Device/GetAllDevices/{installation_id}"
+        )
+
+    async def get_devices_by_type(self, installation_id, device_type):
         return await self._post(
             f"{API_BASE}/Device/GetDevicesByType/{installation_id}",
             {
-                "DeviceType": 2,
+                "DeviceType": device_type,
                 "WithDetails": False,
             },
         )
+
+    async def get_heatpump_devices(self, installation_id):
+        """
+        Backwards-compatible name used by coordinator.py.
+
+        Older versions only fetched DeviceType=2. Newer Kermi systems may use
+        other device types, so prefer GetAllDevices and fall back to DeviceType=2.
+        """
+        try:
+            data = await self.get_all_devices(installation_id)
+        except Exception:
+            _LOGGER.exception(
+                "Kermi GetAllDevices failed; falling back to DeviceType=2"
+            )
+            return await self.get_devices_by_type(installation_id, 2)
+
+        devices = data.get("ResponseData", []) or []
+
+        _LOGGER.info(
+            "Kermi all-device discovery returned %s devices: %s",
+            len(devices),
+            [
+                {
+                    "name": device.get("Name"),
+                    "type": device.get("DeviceType"),
+                    "version": device.get("SoftwareVersion"),
+                    "config_version": device.get("ConfigVersion"),
+                }
+                for device in devices
+            ],
+        )
+
+        return data
 
     async def get_configs(
         self,

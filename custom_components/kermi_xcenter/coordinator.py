@@ -113,6 +113,20 @@ class KermiCoordinator(DataUpdateCoordinator):
             self._devices[device_id] = device
             self._config_versions[device_id] = device.get("ConfigVersion")
 
+            _LOGGER.info(
+                "Kermi device found: name=%s type=%s version=%s "
+                "config_version=%s active_options=%s",
+                device.get("Name"),
+                device.get("DeviceType"),
+                device.get("SoftwareVersion"),
+                device.get("ConfigVersion"),
+                [
+                    option.get("Name")
+                    for option in device.get("DeviceOptions", []) or []
+                    if option.get("IsActivated")
+                ],
+            )
+
         self._devices.setdefault(
             ZERO_DEVICE_ID,
             {
@@ -164,9 +178,16 @@ class KermiCoordinator(DataUpdateCoordinator):
         wellknown_ids,
         reverse_lookup,
     ):
-        device_id = device["DeviceId"]
-        device_type = device["DeviceType"]
+        device_id = device.get("DeviceId")
+        device_type = device.get("DeviceType")
         device_version = device.get("SoftwareVersion")
+
+        if device_type is None:
+            _LOGGER.debug(
+                "Skipping Kermi config discovery for %s because DeviceType is missing",
+                device.get("Name", device_id),
+            )
+            return
 
         if not device_version:
             device_version = (
@@ -244,9 +265,6 @@ class KermiCoordinator(DataUpdateCoordinator):
         )
 
         for device in self._devices.values():
-            if device.get("DeviceType") not in (0, 2):
-                continue
-
             await self._discover_configs_for_device(
                 device=device,
                 wellknown_ids=wellknown_ids,
