@@ -14,49 +14,56 @@ HEATPUMP_WELLKNOWN_IDS = {
     "ManualSaisonMK3": "c1b82599-8e87-4cc2-83db-48da3cd53adf",
     "ControlKermiMK3": "bad65805-1d09-42d5-b00d-0abce6019bef",
     "HP_HeizwasserBetriebsartHK3": "5f344208-662b-44a9-a349-9020297413f3",
-    "GlobalAlarmFlag" : "13ac9828-9ceb-418c-a084-2ac24a5e7866",
-    "SoftwareVersion" : "89ef4512-8b6d-4919-a8cb-7de72cbfb002",
-    "System_SoftwareUpdateState" : "61afe142-5709-47f3-9624-511f6c96ec00",
-	"LocalTime" : "90b485ce-abed-4a56-a7b2-bd0727c7fbed",
-	"Location" : "1432f73c-cc13-463f-a0c7-a03f4b18729a",
-	"Sunrise" : "3dd5e57b-2832-4903-b007-e55f6e681c8d",
-	"Sunset" : "81fff749-56a1-4f83-8022-a6140058a616",
-	"HP_Aussentemperatur_Saison" : "e0ed80e9-ec5a-4c5e-941e-f4430448cb27",
-	"HPxyz_Mk3OperationMode" : "d5bf0ed9-d35a-4676-907b-4028ba43b6f1",
-	"HP_StatusPumpeMK3" : "fb8b77a4-0a1b-4e43-8b2c-ec0dda15cd9b",
-	"ManualSaisonMK3" : "c1b82599-8e87-4cc2-83db-48da3cd53adf",
-	"SummerModeHk3" : "e381826f-59bc-4874-8bb9-a92d782b390c",
-	"ControlKermiMK3" : "bad65805-1d09-42d5-b00d-0abce6019bef",
-	 "HP_HeizwasserBetriebsartHK3" : "5f344208-662b-44a9-a349-9020297413f3",
+    "GlobalAlarmFlag": "13ac9828-9ceb-418c-a084-2ac24a5e7866",
+    "SoftwareVersion": "89ef4512-8b6d-4919-a8cb-7de72cbfb002",
+    "System_SoftwareUpdateState": "61afe142-5709-47f3-9624-511f6c96ec00",
+    "LocalTime": "90b485ce-abed-4a56-a7b2-bd0727c7fbed",
+    "Location": "1432f73c-cc13-463f-a0c7-a03f4b18729a",
+    "Sunrise": "3dd5e57b-2832-4903-b007-e55f6e681c8d",
+    "Sunset": "81fff749-56a1-4f83-8022-a6140058a616",
+    "HP_Aussentemperatur_Saison": "e0ed80e9-ec5a-4c5e-941e-f4430448cb27",
+    "HP_StatusPumpeMK3": "fb8b77a4-0a1b-4e43-8b2c-ec0dda15cd9b",
+    "SummerModeHk3": "e381826f-59bc-4874-8bb9-a92d782b390c",
 }
 
 
-def extract_wellknown_ids(js_text):
-    pattern = r"([A-Za-z0-9_]+):\s*`([0-9a-fA-F-]{36})`"
+WELLKNOWN_PREFIXES = (
+    "HP_",
+    "HPxyz_",
+    "EcoODU_",
+    "EcoIDU_",
+    "ControlKermi",
+    "ManualSaison",
+    "SummerMode",
+    "EnergyMode",
+    "MK3Name",
+    "Heatpump",
+    "System_",
+    "GlobalAlarmFlag",
+    "SoftwareVersion",
+    "LocalTime",
+    "Location",
+    "Sunrise",
+    "Sunset",
+)
 
-    return {
-        name: config_id.lower()
-        for name, config_id in re.findall(pattern, js_text or "")
-        if name.startswith(
-            (
-                "HP_",
-                "HPxyz_",
-                "EcoODU_",
-                "EcoIDU_",
-                "ControlKermi",
-                "ManualSaison",
-                "SummerMode",
-                "EnergyMode",
-                "MK3Name",
-                "Heatpump",
-                "System_IsPresent",
-                "GlobalAlarmFlag",
-                "SoftwareVersion",
-                "System_SoftwareUpdateState",
-                "LocalTime", 
-                "Location",
-                "Sunrise",
-                "Sunset",
-            )
-        )
-    }
+
+def extract_wellknown_ids(js_text):
+    ids = {}
+
+    patterns = (
+        r"([A-Za-z0-9_]+):\s*`([0-9a-fA-F-]{36})`",
+        r"([A-Za-z0-9_]+):\s*['\"]([0-9a-fA-F-]{36})['\"]",
+        r"['\"]([A-Za-z0-9_]+)['\"]\s*:\s*['\"]([0-9a-fA-F-]{36})['\"]",
+    )
+
+    for pattern in patterns:
+        for name, config_id in re.findall(pattern, js_text or ""):
+            if _is_relevant_wellknown_name(name):
+                ids[name] = config_id.lower()
+
+    return ids
+
+
+def _is_relevant_wellknown_name(name):
+    return str(name).startswith(WELLKNOWN_PREFIXES)
