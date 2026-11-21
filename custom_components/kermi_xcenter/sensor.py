@@ -105,10 +105,14 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def state_class(self):
-        if self.native_unit_of_measurement == "kWh":
+        unit = self.native_unit_of_measurement
+
+        if unit == "kWh":
             return SensorStateClass.TOTAL_INCREASING
-		if unit in ("kW", "W"):
-			return SensorStateClass.MEASUREMENT
+
+        if unit in ("kW", "W"):
+            return SensorStateClass.MEASUREMENT
+
         return None
 
     @property
