@@ -1,4 +1,8 @@
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorDeviceClass,
+    SensorStateClass,
+)
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 DOMAIN = "kermi_xcenter"
@@ -31,7 +35,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
             cfg.get("AllowedInAction")
             and cfg.get("UserLevelWrite", 999) <= 10
         )
-        
+
         if cfg.get("PossibleValues") and is_writable:
             continue
 
@@ -84,7 +88,7 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        config = self._cfg  # sensor.py
+        config = self._cfg
         return {
             "description": config.get("Description"),
             "well_known_name": config.get("WellKnownName"),
@@ -100,21 +104,27 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
         return UNIT_DEVICE_CLASS.get(self.native_unit_of_measurement)
 
     @property
+    def state_class(self):
+        if self.native_unit_of_measurement == "kWh":
+            return SensorStateClass.TOTAL_INCREASING
+        return None
+
+    @property
     def native_value(self):
         raw = self._dp.get("value") or {}
         value = raw.get("Value")
-    
+
         possible = self._cfg.get("PossibleValues") or {}
         if possible:
             return possible.get(str(value), value)
-    
+
         return value
-        
+
     @property
     def device_info(self):
         device_id = self._dp.get("device_id")
         device = self.coordinator.data.get("devices", {}).get(device_id, {})
-    
+
         return {
             "identifiers": {("kermi_xcenter", device_id or "system")},
             "name": device.get("Name") or "Kermi X-Center",
