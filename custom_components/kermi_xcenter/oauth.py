@@ -3,12 +3,13 @@ import hashlib
 import secrets
 import urllib.parse
 
-from .const import AUTH_URL
+from .const import DEFAULT_PORTAL, PORTALS
 
 
 class KermiOAuth:
-    CLIENT_ID = "XCenterUI"
-    REDIRECT_URI = "https://portal.kermi.com/xcenterui/xcenter/auth/loginCallback"
+    # Preserve the original public constants for callers that relied on them.
+    CLIENT_ID = PORTALS[DEFAULT_PORTAL]["client_id"]
+    REDIRECT_URI = PORTALS[DEFAULT_PORTAL]["redirect_uri"]
 
     SCOPES = [
         "openid",
@@ -18,6 +19,9 @@ class KermiOAuth:
         "kermi.xcenter",
         "kermi.webcrm",
     ]
+
+    def __init__(self, portal=DEFAULT_PORTAL):
+        self.portal = PORTALS.get(portal, PORTALS[DEFAULT_PORTAL])
 
     def generate_pkce(self):
         verifier = secrets.token_hex(64)
@@ -29,11 +33,11 @@ class KermiOAuth:
 
     def build_auth_url(self, state, challenge):
         return (
-            f"{AUTH_URL}?"
+            f"{self.portal['auth_url']}?"
             + urllib.parse.urlencode(
                 {
-                    "client_id": self.CLIENT_ID,
-                    "redirect_uri": self.REDIRECT_URI,
+                    "client_id": self.portal["client_id"],
+                    "redirect_uri": self.portal["redirect_uri"],
                     "response_type": "code",
                     "scope": " ".join(self.SCOPES),
                     "state": state,

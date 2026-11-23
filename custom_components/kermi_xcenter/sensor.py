@@ -84,7 +84,9 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def unique_id(self):
-        return f"kermi_xcenter_sensor_{self.config_id}"
+        portal = getattr(self.coordinator, "portal", "kermi")
+        prefix = "kermi_xcenter" if portal == "kermi" else f"kermi_xcenter_{portal}"
+        return f"{prefix}_sensor_{self.config_id}"
 
     @property
     def extra_state_attributes(self):
@@ -132,7 +134,7 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
         device = self.coordinator.data.get("devices", {}).get(device_id, {})
 
         return {
-            "identifiers": {("kermi_xcenter", device_id or "system")},
+            "identifiers": {(("kermi_xcenter" if getattr(self.coordinator, "portal", "kermi") == "kermi" else f"kermi_xcenter_{self.coordinator.portal}"), device_id or "system")},
             "name": device.get("Name") or "Kermi X-Center",
             "manufacturer": "Kermi",
             "model": device.get("Name") or "X-Center",

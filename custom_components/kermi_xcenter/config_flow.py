@@ -6,7 +6,12 @@ from homeassistant.config_entries import OptionsFlowWithReload
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DOMAIN, DEFAULT_UPDATE_INTERVAL_MINUTES
+from .const import (
+    DEFAULT_PORTAL,
+    DOMAIN,
+    PORTALS,
+    DEFAULT_UPDATE_INTERVAL_MINUTES,
+)
 from .oauth import KermiOAuth
 from .token import TokenClient
 
@@ -15,6 +20,7 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         self.installation_id = None
+        self.portal = DEFAULT_PORTAL
         self.verifier = None
         self.state = None
         self.auth_url = None
@@ -27,17 +33,35 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         if user_input is not None:
             self.installation_id = user_input["installation_id"]
+            self.portal = user_input.get("portal", DEFAULT_PORTAL)
 
-            await self.async_set_unique_id(self.installation_id)
+            # Keep the historical Kermi unique ID unchanged. A portal prefix
+            # gives HEIM AG an independent namespace for identical IDs.
+            unique_id = (
+                self.installation_id
+                if self.portal == DEFAULT_PORTAL
+                else f"{self.portal}_{self.installation_id}"
+            )
+            await self.async_set_unique_id(unique_id)
             self._abort_if_unique_id_configured()
 
             return await self._start_oauth_flow()
 
+        portal_options = [
+            {"value": key, "label": portal["name"]}
+            for key, portal in PORTALS.items()
+        ]
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Required("installation_id"): str,
+                    vol.Required("portal", default=DEFAULT_PORTAL): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=portal_options,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    ),
                 }
             ),
         )
@@ -47,11 +71,12 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.context["entry_id"]
         )
         self.installation_id = entry_data["installation_id"]
+        self.portal = self.reauth_entry.data.get("portal", DEFAULT_PORTAL)
 
         return await self._start_oauth_flow()
 
     async def _start_oauth_flow(self):
-        oauth = KermiOAuth()
+        oauth = KermiOAuth(self.portal)
         self.verifier, challenge = oauth.generate_pkce()
         self.state = secrets.token_urlsafe(24)
         self.auth_url = oauth.build_auth_url(self.state, challenge)
@@ -64,7 +89,7 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             callback_url = user_input["authorization_response_url"]
 
-            oauth = KermiOAuth()
+            oauth = KermiOAuth(self.portal)
             code, state = oauth.extract_code_and_state(callback_url)
 
             if not code:
@@ -73,7 +98,7 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["authorization_response_url"] = "invalid_state"
             else:
                 session = async_get_clientsession(self.hass)
-                token_client = TokenClient(session)
+                token_client = TokenClient(session, self.portal)
 
                 try:
                     token_data = await token_client.exchange_code(
@@ -89,6 +114,11 @@ class KermiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "refresh_token": token_data["refresh_token"],
                         "expires_in": token_data.get("expires_in", 3600),
                     }
+
+                    # Existing Kermi entries without this key remain valid;
+                    # persist the selected portal on newly created entries.
+                    if self.reauth_entry is None or "portal" in self.reauth_entry.data:
+                        data["portal"] = self.portal
 
                     if self.reauth_entry is not None:
                         self.hass.config_entries.async_update_entry(

@@ -2,24 +2,23 @@ import logging
 
 import aiohttp
 
-from .const import TOKEN_URL
-from .oauth import KermiOAuth
-
+from .const import DEFAULT_PORTAL, PORTALS
 _LOGGER = logging.getLogger(__name__)
 
 
 class TokenClient:
-    def __init__(self, session: aiohttp.ClientSession):
+    def __init__(self, session: aiohttp.ClientSession, portal=DEFAULT_PORTAL):
         self.session = session
+        self.portal = PORTALS.get(portal, PORTALS[DEFAULT_PORTAL])
 
     async def exchange_code(self, code, verifier):
         async with self.session.post(
-            TOKEN_URL,
+            self.portal["token_url"],
             data={
-                "client_id": KermiOAuth.CLIENT_ID,
+                "client_id": self.portal["client_id"],
                 "grant_type": "authorization_code",
                 "code": code,
-                "redirect_uri": KermiOAuth.REDIRECT_URI,
+                "redirect_uri": self.portal["redirect_uri"],
                 "code_verifier": verifier,
             },
         ) as r:
@@ -39,9 +38,9 @@ class TokenClient:
 
     async def refresh(self, refresh_token):
         async with self.session.post(
-            TOKEN_URL,
+            self.portal["token_url"],
             data={
-                "client_id": KermiOAuth.CLIENT_ID,
+                "client_id": self.portal["client_id"],
                 "grant_type": "refresh_token",
                 "refresh_token": refresh_token,
             },

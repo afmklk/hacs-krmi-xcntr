@@ -50,7 +50,9 @@ class KermiSelect(CoordinatorEntity, SelectEntity):
 
         config = datapoint.get("config", {})
         self._attr_name = config.get("DisplayName") or config.get("WellKnownName") or "Kermi"
-        self._attr_unique_id = f"kermi_xcenter_select_{datapoint['config_id']}"
+        portal = getattr(coordinator, "portal", "kermi")
+        prefix = "kermi_xcenter" if portal == "kermi" else f"kermi_xcenter_{portal}"
+        self._attr_unique_id = f"{prefix}_select_{datapoint['config_id']}"
 
         self._value_to_option = {}
         self._option_to_value = {}
@@ -69,7 +71,7 @@ class KermiSelect(CoordinatorEntity, SelectEntity):
         device = self.coordinator.data.get("devices", {}).get(device_id, {})
     
         return {
-            "identifiers": {("kermi_xcenter", device_id or "system")},
+            "identifiers": {(("kermi_xcenter" if getattr(self.coordinator, "portal", "kermi") == "kermi" else f"kermi_xcenter_{self.coordinator.portal}"), device_id or "system")},
             "name": device.get("Name") or "Kermi X-Center",
             "manufacturer": "Kermi",
             "model": device.get("Name") or "X-Center",

@@ -2,13 +2,39 @@
   "config": {
     "step": {
       "user": {
-        "title": "Kermi X-Center",
-        "description": "Enter your API credentials",
+        "title": "X-Center Portal",
+        "description": "Enter the installation ID and select the portal. HEIM AG OAuth and API details are unverified assumptions based on Kermi's URL structure.",
         "data": {
           "installation_id": "Installation ID",
-          "access_token": "Access Token",
-          "refresh_token": "Refresh Token",
-          "client_id": "Client ID"
+          "portal": "Portal"
+        }
+      },
+      "auth": {
+        "title": "X-Center Portal Login",
+        "description": "Open the authorization URL, sign in to the selected portal, then paste the full login callback referer URL (use browser dev tools). For HEIM AG, the OAuth configuration is an unverified assumption.",
+        "data": {
+          "open_this_url": "Open this URL",
+          "authorization_response_url": "Callback Referer URL"
+        }
+      }
+    },
+    "error": {
+      "missing_code": "The callback URL does not contain an authorization code.",
+      "invalid_state": "The callback URL does not match this login attempt.",
+      "auth_failed": "Authentication with the selected portal failed."
+    },
+    "abort": {
+      "already_configured": "This installation on the selected portal is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "X-Center Options",
+        "description": "Configure how often Home Assistant refreshes data from the selected portal. The default is {default_interval} minutes. Shorter intervals provide faster updates but generate more API traffic.",
+        "data": {
+          "update_interval_minutes": "Update interval"
         }
       }
     }

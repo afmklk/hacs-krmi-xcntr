@@ -2,17 +2,19 @@ import logging
 import re
 from urllib.parse import urljoin
 
-from .const import API_BASE
+from .const import DEFAULT_PORTAL, PORTALS
 from .wellknown import WELLKNOWN_PREFIXES
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class KermiApi:
-    def __init__(self, session, token_store, installation_id):
+    def __init__(self, session, token_store, installation_id, portal=DEFAULT_PORTAL):
         self.session = session
         self.token_store = token_store
         self.installation_id = installation_id
+        self.portal = PORTALS.get(portal, PORTALS[DEFAULT_PORTAL])
+        self.api_base = self.portal["api_base"]
 
     async def _headers(self):
         token = await self.token_store.get_access_token()
@@ -24,7 +26,7 @@ class KermiApi:
 
     async def get_wellknown_datapoints_js(self):
         candidate_pages = [
-            "https://portal.kermi.com/XCenterUI/remotecontrolnew/de/DE",
+            f"{self.portal['host']}/XCenterUI/remotecontrolnew/de/DE",
             #"https://portal.kermi.com/XCenterUI/remotecontrol/de/DE",
             #"https://portal.kermi.com/XCenterUI/xcenter/de/de",
         ]
@@ -47,8 +49,8 @@ class KermiApi:
 
         script_urls.extend(
             [
-                "https://portal.kermi.com/XCenterUI/remotecontrolnew/generated/wellknown-datapoints-BE2r4Sgi.js",
-                "https://portal.kermi.com/XCenterUI/remotecontrol/generated/wellknown-datapoints-BE2r4Sgi.js",
+                f"{self.portal['host']}/XCenterUI/remotecontrolnew/generated/wellknown-datapoints-BE2r4Sgi.js",
+                f"{self.portal['host']}/XCenterUI/remotecontrol/generated/wellknown-datapoints-BE2r4Sgi.js",
             ]
         )
 
@@ -187,18 +189,18 @@ class KermiApi:
 
     async def get_favorites(self, installation_id):
         return await self._post(
-            f"{API_BASE}/Favorite/GetFavorites/{installation_id}",
+            f"{self.api_base}/Favorite/GetFavorites/{installation_id}",
             {"WithDetails": True, "OnlyHomeScreen": False},
         )
 
     async def get_all_devices(self, installation_id):
         return await self._get(
-            f"{API_BASE}/Device/GetAllDevices/{installation_id}"
+            f"{self.api_base}/Device/GetAllDevices/{installation_id}"
         )
 
     async def get_devices_by_type(self, installation_id, device_type):
         return await self._post(
-            f"{API_BASE}/Device/GetDevicesByType/{installation_id}",
+            f"{self.api_base}/Device/GetDevicesByType/{installation_id}",
             {
                 "DeviceType": device_type,
                 "WithDetails": False,
@@ -246,7 +248,7 @@ class KermiApi:
         config_ids,
     ):
         return await self._post(
-            f"{API_BASE}/Datapoint/GetConfigs/{installation_id}",
+            f"{self.api_base}/Datapoint/GetConfigs/{installation_id}",
             {
                 "DeviceType": device_type,
                 "DeviceVersion": device_version,
@@ -257,7 +259,7 @@ class KermiApi:
 
     async def read_values(self, installation_id, datapoints):
         return await self._post(
-            f"{API_BASE}/Datapoint/ReadValues/{installation_id}",
+            f"{self.api_base}/Datapoint/ReadValues/{installation_id}",
             {
                 "DatapointValues": [
                     {
@@ -272,7 +274,7 @@ class KermiApi:
 
     async def write_value(self, installation_id, datapoint, value):
         return await self._post(
-            f"{API_BASE}/Datapoint/WriteValues/{installation_id}",
+            f"{self.api_base}/Datapoint/WriteValues/{installation_id}",
             {
                 "DatapointValues": [
                     {

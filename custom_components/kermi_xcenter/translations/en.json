@@ -2,15 +2,16 @@
   "config": {
     "step": {
       "user": {
-        "title": "Kermi X-Center",
-        "description": "Enter your Kermi X-Center installation ID. Click the ?-Help button for instructions on how to find it.",
+        "title": "X-Center Portal",
+        "description": "Enter the installation ID and select the portal. HEIM AG OAuth and API details are unverified assumptions based on Kermi's URL structure.",
         "data": {
-          "installation_id": "Installation ID"
+          "installation_id": "Installation ID",
+          "portal": "Portal"
         }
       },
       "auth": {
-        "title": "Kermi OAuth Login",
-        "description": "Open the authorization URL, sign in to Kermi, then paste the full login callback referer URL (use browser dev tools).",
+        "title": "X-Center Portal Login",
+        "description": "Open the authorization URL, sign in to the selected portal, then paste the full login callback referer URL (use browser dev tools). For HEIM AG, the OAuth configuration is an unverified assumption.",
         "data": {
           "open_this_url": "Open this URL",
           "authorization_response_url": "Callback Referer URL"
@@ -20,18 +21,18 @@
     "error": {
       "missing_code": "The callback URL does not contain an authorization code.",
       "invalid_state": "The callback URL does not match this login attempt.",
-      "auth_failed": "Authentication with Kermi failed."
+      "auth_failed": "Authentication with the selected portal failed."
     },
     "abort": {
-      "already_configured": "This Kermi X-Center installation is already configured.",
+      "already_configured": "This installation on the selected portal is already configured.",
       "reauth_successful": "Re-authentication was successful."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Kermi X-Center Options",
-        "description": "Configure how often Home Assistant refreshes data from the Kermi cloud. The default is {default_interval} minutes. Shorter intervals provide faster updates but generate more API traffic.",
+        "title": "X-Center Options",
+        "description": "Configure how often Home Assistant refreshes data from the selected portal. The default is {default_interval} minutes. Shorter intervals provide faster updates but generate more API traffic.",
         "data": {
           "update_interval_minutes": "Update interval"
         }

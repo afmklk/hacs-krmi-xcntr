@@ -4,6 +4,7 @@ import logging
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .wellknown import HEATPUMP_WELLKNOWN_IDS, extract_wellknown_ids
+from .const import DEFAULT_PORTAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -87,6 +88,7 @@ class KermiCoordinator(DataUpdateCoordinator):
         api,
         installation_id,
         update_interval_minutes,
+        portal=DEFAULT_PORTAL,
     ):
         super().__init__(
             hass,
@@ -96,6 +98,7 @@ class KermiCoordinator(DataUpdateCoordinator):
         )
         self.api = api
         self.installation_id = installation_id
+        self.portal = portal
 
         self._discovered = False
         self._datapoints = {}
