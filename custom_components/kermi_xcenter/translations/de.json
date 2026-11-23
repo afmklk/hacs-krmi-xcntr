@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "X-Center-Portal",
-        "description": "Gib die Installations-ID ein und wähle das Portal. Die OAuth- und API-Angaben für HEIM AG sind unbestätigte Annahmen auf Grundlage der Kermi-URL-Struktur.",
+        "description": "Gib die Installations-ID ein und wähle das Portal.",
         "data": {
           "installation_id": "Installations-ID",
           "portal": "Portal"
@@ -11,7 +11,7 @@
       },
       "auth": {
         "title": "X-Center-Portal-Anmeldung",
-        "description": "Öffne die Autorisierungs-URL, melde dich beim ausgewählten Portal an und füge anschließend die vollständige Callback-Referer-URL ein. Die OAuth-Konfiguration für HEIM AG ist unbestätigt.",
+        "description": "Öffne die Autorisierungs-URL, melde dich beim ausgewählten Portal an und füge anschließend die vollständige Callback-Referer-URL ein.",
         "data": {
           "open_this_url": "Diese URL öffnen",
           "authorization_response_url": "Callback Referer-URL"

@@ -12,6 +12,11 @@ ZERO_DEVICE_ID = "00000000-0000-0000-0000-000000000000"
 SYSTEM_DEVICE_VERSION = "1.5.110.260"
 
 
+def datapoint_key(device_id, config_id):
+    """Return a stable key for a datapoint on a specific device."""
+    return f"{device_id or 'system'}_{config_id}"
+
+
 def _normalize_description(text):
     if not text:
         return text
@@ -40,8 +45,10 @@ def _value_type_from_config(config):
 
 
 def _normalize_config(config, device_id, wellknown_name=None):
+    config_id = config.get("DatapointConfigId")
     return {
-        "config_id": config.get("DatapointConfigId"),
+        "key": datapoint_key(device_id, config_id),
+        "config_id": config_id,
         "device_id": device_id,
         "type": _value_type_from_config(config),
         "config": _normalize_config_dict(
@@ -62,9 +69,11 @@ def _normalize_favorite_datapoint(raw):
         or value.get("DatapointConfigId")
     )
 
+    device_id = value.get("DeviceId") or raw.get("DeviceId")
     return {
+        "key": datapoint_key(device_id, config_id),
         "config_id": config_id,
-        "device_id": value.get("DeviceId") or raw.get("DeviceId"),
+        "device_id": device_id,
         "type": value.get("$type") or _value_type_from_config(config),
         "config": _normalize_config_dict(config),
         "value": value,
@@ -167,7 +176,7 @@ class KermiCoordinator(DataUpdateCoordinator):
             dp = _normalize_favorite_datapoint(item)
 
             if dp["config_id"]:
-                self._datapoints[dp["config_id"]] = dp
+                self._datapoints[dp["key"]] = dp
 
         _LOGGER.info(
             "Kermi favorite datapoint discovery completed: added=%s total=%s",
@@ -236,11 +245,12 @@ class KermiCoordinator(DataUpdateCoordinator):
 
             wellknown_name = reverse_lookup.get(config_id.lower())
 
-            self._datapoints[config_id] = _normalize_config(
+            dp = _normalize_config(
                 config,
                 device_id,
                 wellknown_name=wellknown_name,
             )
+            self._datapoints[dp["key"]] = dp
 
     async def _discover_wellknown_heatpump_datapoints(self):
         try:
@@ -414,8 +424,21 @@ class KermiCoordinator(DataUpdateCoordinator):
 
             for raw_value in values.get("ResponseData", []) or []:
                 config_id = raw_value.get("DatapointConfigId")
-                if config_id in self._datapoints:
-                    self._datapoints[config_id]["value"] = raw_value
+                key = datapoint_key(raw_value.get("DeviceId"), config_id)
+                datapoint = self._datapoints.get(key)
+
+                # Some portal responses omit DeviceId. Use the config ID only
+                # when it identifies exactly one discovered datapoint.
+                if datapoint is None:
+                    matches = [
+                        dp for dp in self._datapoints.values()
+                        if dp.get("config_id") == config_id
+                    ]
+                    if len(matches) == 1:
+                        datapoint = matches[0]
+
+                if datapoint is not None:
+                    datapoint["value"] = raw_value
 
         return {
             "datapoints": self._datapoints,

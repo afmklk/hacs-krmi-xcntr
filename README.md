@@ -10,7 +10,7 @@ A custom integration to connect your Kermi X-Center heat pump to Home Assistant 
 - Configurable refresh interval
 
 ## Disclaimer
-🚨 This custom component is an independent project and is not affiliated with Kermi GmbH. Any trademarks or product names mentioned are the property of their respective owners. You bear the sole risk of a possible loss of the manufacturer's warranty or any damage that may be caused by your use of this integration. Make sure you know what you are doing! 🚨
+🚨 This custom component is an independent project and is not affiliated with or endorsed by Kermi GmbH and/or Heim AG. Any trademarks or product names mentioned are the property of their respective owners. You bear the sole risk of a possible loss of the manufacturer's warranty or any damage that may be caused by your use of this integration. Make sure you know what you are doing! 🚨
 
 ## Requirements
 ### Hardware Compatibility
@@ -38,10 +38,10 @@ Your Kermi x-center control interface must be connected to the internet and regi
 Copy `custom_components/kermi_xcenter` into your Home Assistant config directory.
 
 ## Configuration
-1. Log into the x-center portal at https://portal.kermi.com/xcenterui/. After login, open the remote control interface for your x-center system (click on the green button) and copy your installation ID from the browser URL. Look for the alphanumeric ID directly after `/XCenterUI/RemoteControlNew/de/DE/` formatted `XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX` (this is **not** identical to the serial number of your device). Save your installation ID somewhere for easier reference. Log out from the X-Center portal.
+1. Log into the x-center portal at https://portal.kermi.com/xcenterui/ (or https://kermi.heim-ag.ch/xcenterui/ if based in Switzerland). After login, open the remote control interface for your x-center system (click on the green button) and copy your installation ID from the browser URL. Look for the alphanumeric ID directly after `/XCenterUI/RemoteControlNew/de/DE/` formatted `XXXXXXXX-XXX-XXXX-XXXX-XXXXXXXXXXXX` (this is **not** identical to the serial number of your device). Save your installation ID somewhere for easier reference. Log out from the X-Center portal.
    ![Installation ID](/installation_id.png)
 2. In HA, go to **Settings → Devices & services**, click **Add Integration** and search for **Kermi X-Center**.
-3. In the config flow, paste the installation ID you just copied.
+3. In the config flow, paste the installation ID you just copied. Set Portal to Heim AG if applicable.
 4. Copy the resulting auth URL.
 5. In a new browser window/tab, open **Developer tools → Network**.
 6. Paste and open the auth URL.
@@ -52,3 +52,5 @@ Copy `custom_components/kermi_xcenter` into your Home Assistant config directory
 10. Done! 
 
 Optional: By default, data from the Kermi cloud will be refreshed every 5 minutes. You can configure custom refresh intervals in the options flow (⚙️ icon).
+
+Note: , make sure you use the Heim AG portal 

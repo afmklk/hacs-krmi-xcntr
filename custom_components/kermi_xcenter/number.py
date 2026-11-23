@@ -43,7 +43,8 @@ class KermiNumber(CoordinatorEntity, NumberEntity):
         self._attr_name = config.get("DisplayName") or config.get("WellKnownName")
         portal = getattr(coordinator, "portal", "kermi")
         prefix = "kermi_xcenter" if portal == "kermi" else f"kermi_xcenter_{portal}"
-        self._attr_unique_id = f"{prefix}_number_{datapoint['config_id']}"
+        device_id = datapoint.get("device_id") or "system"
+        self._attr_unique_id = f"{prefix}_number_{device_id}_{datapoint['config_id']}"
 
         self._attr_native_min_value = config.get("MinValue")
         self._attr_native_max_value = config.get("MaxValue")
@@ -56,7 +57,12 @@ class KermiNumber(CoordinatorEntity, NumberEntity):
         device = self.coordinator.data.get("devices", {}).get(device_id, {})
     
         return {
-            "identifiers": {(("kermi_xcenter" if getattr(self.coordinator, "portal", "kermi") == "kermi" else f"kermi_xcenter_{self.coordinator.portal}"), device_id or "system")},
+            "identifiers": {(
+                "kermi_xcenter"
+                if getattr(self.coordinator, "portal", "kermi") == "kermi"
+                else f"kermi_xcenter_{self.coordinator.portal}",
+                device_id or "system",
+            )},
             "name": device.get("Name") or "Kermi X-Center",
             "manufacturer": "Kermi",
             "model": device.get("Name") or "X-Center",
@@ -76,8 +82,8 @@ class KermiNumber(CoordinatorEntity, NumberEntity):
     @property
     def native_value(self):
         dp = self.coordinator.data["datapoints"].get(
-            self.datapoint["config_id"],
-            {},
+            self.datapoint["key"],
+            self.datapoint,
         )
         return dp.get("value", {}).get("Value")      
 

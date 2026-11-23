@@ -23,7 +23,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities = []
 
-    for config_id, dp in datapoints.items():
+    for dp in datapoints.values():
         cfg = dp.get("config", {})
         value = (dp.get("value") or {}).get("Value")
 
@@ -56,19 +56,22 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ):
             continue
 
-        entities.append(KermiSensor(coordinator, config_id))
+        entities.append(KermiSensor(coordinator, dp))
 
     async_add_entities(entities)
 
 
 class KermiSensor(CoordinatorEntity, SensorEntity):
-    def __init__(self, coordinator, config_id):
+    def __init__(self, coordinator, datapoint):
         super().__init__(coordinator)
-        self.config_id = config_id
+        self.datapoint = datapoint
+        self.config_id = datapoint["config_id"]
 
     @property
     def _dp(self):
-        return self.coordinator.data["datapoints"][self.config_id]
+        return self.coordinator.data["datapoints"].get(
+            self.datapoint["key"], self.datapoint
+        )
 
     @property
     def _cfg(self):
@@ -86,7 +89,8 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
     def unique_id(self):
         portal = getattr(self.coordinator, "portal", "kermi")
         prefix = "kermi_xcenter" if portal == "kermi" else f"kermi_xcenter_{portal}"
-        return f"{prefix}_sensor_{self.config_id}"
+        device_id = self.datapoint.get("device_id") or "system"
+        return f"{prefix}_sensor_{device_id}_{self.config_id}"
 
     @property
     def extra_state_attributes(self):
@@ -134,7 +138,12 @@ class KermiSensor(CoordinatorEntity, SensorEntity):
         device = self.coordinator.data.get("devices", {}).get(device_id, {})
 
         return {
-            "identifiers": {(("kermi_xcenter" if getattr(self.coordinator, "portal", "kermi") == "kermi" else f"kermi_xcenter_{self.coordinator.portal}"), device_id or "system")},
+            "identifiers": {(
+                "kermi_xcenter"
+                if getattr(self.coordinator, "portal", "kermi") == "kermi"
+                else f"kermi_xcenter_{self.coordinator.portal}",
+                device_id or "system",
+            )},
             "name": device.get("Name") or "Kermi X-Center",
             "manufacturer": "Kermi",
             "model": device.get("Name") or "X-Center",

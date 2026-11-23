@@ -12,9 +12,6 @@ PLATFORMS = [
 AUTH_URL = "https://portal.kermi.com/openid/connect/authorize"
 TOKEN_URL = "https://portal.kermi.com/openid/connect/token"
 API_BASE = "https://portal.kermi.com/xcenterpro/api"
-
-# HEIM AG's portal host is publicly documented. Its OAuth client settings,
-# scopes, callback, and API compatibility have not been verified.
 PORTALS = {
     "kermi": {
         "name": "Kermi",
@@ -25,8 +22,6 @@ PORTALS = {
         "client_id": "XCenterUI",
         "redirect_uri": "https://portal.kermi.com/xcenterui/xcenter/auth/loginCallback",
     },
-    # UNVERIFIED ASSUMPTION: the HEIM AG service uses Kermi's OAuth/API paths,
-    # client ID, redirect path and scopes on its own host.
     "heim_ag": {
         "name": "HEIM AG",
         "host": "https://kermi.heim-ag.ch",

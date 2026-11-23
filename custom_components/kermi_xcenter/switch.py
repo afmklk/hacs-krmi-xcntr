@@ -47,7 +47,8 @@ class KermiSwitch(CoordinatorEntity, SwitchEntity):
         )
         portal = getattr(coordinator, "portal", "kermi")
         prefix = "kermi_xcenter" if portal == "kermi" else f"kermi_xcenter_{portal}"
-        self._attr_unique_id = f"{prefix}_switch_{datapoint['config_id']}"
+        device_id = datapoint.get("device_id") or "system"
+        self._attr_unique_id = f"{prefix}_switch_{device_id}_{datapoint['config_id']}"
 
     @property
     def device_info(self):
@@ -55,7 +56,12 @@ class KermiSwitch(CoordinatorEntity, SwitchEntity):
         device = self.coordinator.data.get("devices", {}).get(device_id, {})
     
         return {
-            "identifiers": {(("kermi_xcenter" if getattr(self.coordinator, "portal", "kermi") == "kermi" else f"kermi_xcenter_{self.coordinator.portal}"), device_id or "system")},
+            "identifiers": {(
+                "kermi_xcenter"
+                if getattr(self.coordinator, "portal", "kermi") == "kermi"
+                else f"kermi_xcenter_{self.coordinator.portal}",
+                device_id or "system",
+            )},
             "name": device.get("Name") or "Kermi X-Center",
             "manufacturer": "Kermi",
             "model": device.get("Name") or "X-Center",
@@ -75,8 +81,8 @@ class KermiSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def is_on(self):
         dp = self.coordinator.data["datapoints"].get(
-            self.datapoint["config_id"],
-            {},
+            self.datapoint["key"],
+            self.datapoint,
         )
         config = dp.get("config", {})
         value = (dp.get("value") or {}).get("Value")
