@@ -1,8 +1,9 @@
 {
   "domain": "kermi_xcenter",
   "name": "Kermi X-Center",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "documentation": "https://github.com/afmklk/hacs-krmi-xcntr/",
+  "issue_tracker": "https://github.com/afmklk/hacs-krmi-xcntr/issues",
   "requirements": [],
   "dependencies": [],
   "codeowners": ["@afmklk"],

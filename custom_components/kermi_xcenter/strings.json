@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "X-Center Portal",
-        "description": "Enter the installation ID and select the portal. HEIM AG OAuth and API details are unverified assumptions based on Kermi's URL structure.",
+        "description": "Enter the installation ID and select the portal.",
         "data": {
           "installation_id": "Installation ID",
           "portal": "Portal"
@@ -11,7 +11,7 @@
       },
       "auth": {
         "title": "X-Center Portal Login",
-        "description": "Open the authorization URL, sign in to the selected portal, then paste the full login callback referer URL (use browser dev tools). For HEIM AG, the OAuth configuration is an unverified assumption.",
+        "description": "Open the authorization URL, sign in to the selected portal, then paste the full login callback referer URL (use browser dev tools).",
         "data": {
           "open_this_url": "Open this URL",
           "authorization_response_url": "Callback Referer URL"
